@@ -33,10 +33,16 @@ public class getDataCsv extends AsyncTask<String, String, String> {
     private final String TAG = "GetUCs()";
     HttpURLConnection urlConnection;
     private Context mContext;
+    private URL serverURL = null;
     private ProgressDialog pd;
 
     public getDataCsv(Context context) {
         mContext = context;
+    }
+
+    public getDataCsv(Context context, URL url) {
+        mContext = context;
+        serverURL = url;
     }
 
     @Override
@@ -57,7 +63,11 @@ public class getDataCsv extends AsyncTask<String, String, String> {
         URL url = null;
         try {
             Log.d(TAG, "doInBackground: Trying...");
-            url = new URL("http://43.245.131.159:8080/dss/api/getdata.php");
+            if (serverURL == null) {
+                url = new URL("http://43.245.131.159:8080/dss/api/getdata.php");
+            } else {
+                url = serverURL;
+            }
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setReadTimeout(100000 /* milliseconds */);
             urlConnection.setConnectTimeout(150000 /* milliseconds */);
