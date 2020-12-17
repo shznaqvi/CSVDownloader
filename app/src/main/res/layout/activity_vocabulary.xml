@@ -1,0 +1,612 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="callback"
+            type="edu.aku.hassannaqvi.csvdownloader.VocabularyActivity" />
+    </data>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#d6d6d6"
+            android:orientation="vertical"
+            android:padding="24dp"
+            tools:context=".VocabularyActivity">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:elevation="1dp"
+                android:radius="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+
+                    android:padding="14dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/word"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawableStart="@drawable/ic_word"
+                            android:drawablePadding="12dp"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="0dp"
+                            android:text="Destroy"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+
+                        <ImageButton
+                            android:id="@+id/btnWord"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:background="#ffffff"
+                            android:onClick="speakUp"
+                            android:padding="0dp"
+                            android:src="@drawable/ic_speak"
+                            android:text="Speak" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/synm"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:drawablePadding="12dp"
+                        android:layoutDirection="rtl"
+                        android:paddingTop="0dp"
+                        android:paddingBottom="8dp"
+                        android:text="تخریب کردن، ویران ساختن"
+                        android:textSize="20sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/s1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:drawableStart="@drawable/ic_sentence"
+                            android:drawablePadding="12dp"
+                            android:padding="8dp"
+                            android:text="Several villages have been destroyed by a huge tidal wave"
+                            android:textSize="18sp" />
+
+                        <ImageButton
+                            android:id="@+id/btnS1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:background="#fff"
+                            android:onClick="speakUp"
+                            android:src="@drawable/ic_speak"
+                            android:text="Speak" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/s2"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:drawableStart="@drawable/ic_sentence"
+                            android:drawablePadding="12dp"
+                            android:padding="8dp"
+                            android:text="The school was completely destroyed in an arson attack."
+                            android:textSize="18sp" />
+
+                        <ImageButton
+                            android:id="@+id/btnS2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:background="#fff"
+                            android:onClick="speakUp"
+                            android:src="@drawable/ic_speak"
+                            android:text="Speak" />
+
+                    </LinearLayout>
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:elevation="1dp"
+
+                android:radius="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+
+                    android:padding="14dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/word2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawableStart="@drawable/ic_word"
+                            android:drawablePadding="12dp"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="0dp"
+                            android:text="Annoy"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+
+                        <ImageButton
+                            android:id="@+id/btnWord2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:background="#ffffff"
+                            android:onClick="speakUp"
+                            android:padding="0dp"
+                            android:src="@drawable/ic_speak"
+                            android:text="Speak" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/synm2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:drawablePadding="12dp"
+                        android:layoutDirection="rtl"
+                        android:paddingTop="0dp"
+                        android:paddingBottom="8dp"
+                        android:text="تحریک کردن، اذیت کردن، رنجاندن"
+                        android:textSize="20sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/s12"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:drawableStart="@drawable/ic_sentence"
+                            android:drawablePadding="12dp"
+                            android:padding="8dp"
+                            android:text="The decision really annoyed him."
+                            android:textSize="18sp" />
+
+                        <ImageButton
+                            android:id="@+id/btnS12"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:background="#fff"
+                            android:onClick="speakUp"
+                            android:src="@drawable/ic_speak"
+                            android:text="Speak" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/s22"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:drawableStart="@drawable/ic_sentence"
+                            android:drawablePadding="12dp"
+                            android:padding="8dp"
+                            android:text="Your loud voice has always annoyed me."
+                            android:textSize="18sp" />
+
+                        <ImageButton
+                            android:id="@+id/btnS22"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:background="#fff"
+                            android:onClick="speakUp"
+                            android:src="@drawable/ic_speak"
+                            android:text="Speak" />
+
+                    </LinearLayout>
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:elevation="1dp"
+                android:radius="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+
+                    android:padding="14dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/word3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawableStart="@drawable/ic_word"
+                            android:drawablePadding="12dp"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="0dp"
+                            android:text="Feast"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+
+                        <ImageButton
+                            android:id="@+id/btnWord3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:background="#ffffff"
+                            android:onClick="speakUp"
+                            android:padding="0dp"
+                            android:src="@drawable/ic_speak"
+                            android:text="Speak" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/synm3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:drawablePadding="12dp"
+                        android:layoutDirection="rtl"
+                        android:paddingTop="0dp"
+                        android:paddingBottom="8dp"
+                        android:text="جشن کردن، عیاشی کردن"
+                        android:textSize="20sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/s13"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:drawableStart="@drawable/ic_sentence"
+                            android:drawablePadding="12dp"
+                            android:padding="8dp"
+                            android:text="The men would congregate and feast after hunting."
+                            android:textSize="18sp" />
+
+                        <ImageButton
+                            android:id="@+id/btnS13"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:background="#fff"
+                            android:onClick="speakUp"
+                            android:src="@drawable/ic_speak"
+                            android:text="Speak" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:elevation="1dp"
+                android:radius="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+
+                    android:padding="14dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/word4"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawableStart="@drawable/ic_word"
+                            android:drawablePadding="12dp"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="0dp"
+                            android:text="Notice"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+
+                        <ImageButton
+                            android:id="@+id/btnWord4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:background="#ffffff"
+                            android:onClick="speakUp"
+                            android:padding="0dp"
+                            android:src="@drawable/ic_speak"
+                            android:text="Speak" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/synm4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:drawablePadding="12dp"
+                        android:layoutDirection="rtl"
+                        android:paddingTop="0dp"
+                        android:paddingBottom="8dp"
+                        android:text="ملاحظه کردن، ملتفت شدن"
+                        android:textSize="20sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/s14"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:drawableStart="@drawable/ic_sentence"
+                            android:drawablePadding="12dp"
+                            android:padding="8dp"
+                            android:text="He noticed the youths behaving suspiciously."
+                            android:textSize="18sp" />
+
+                        <ImageButton
+                            android:id="@+id/btnS14"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:background="#fff"
+                            android:onClick="speakUp"
+                            android:src="@drawable/ic_speak"
+                            android:text="Speak" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/s24"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:drawableStart="@drawable/ic_sentence"
+                            android:drawablePadding="12dp"
+                            android:padding="8dp"
+                            android:text="It was only last year that the doctors really began to be noticed."
+                            android:textSize="18sp" />
+
+                        <ImageButton
+                            android:id="@+id/btnS24"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:background="#fff"
+                            android:onClick="speakUp"
+                            android:src="@drawable/ic_speak"
+                            android:text="Speak" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:elevation="1dp"
+                android:radius="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+
+                    android:padding="14dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/word5"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawableStart="@drawable/ic_word"
+                            android:drawablePadding="12dp"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="0dp"
+                            android:text="Surprise"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+
+                        <ImageButton
+                            android:id="@+id/btnWord5"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:background="#ffffff"
+                            android:onClick="speakUp"
+                            android:padding="0dp"
+                            android:src="@drawable/ic_speak"
+                            android:text="Speak" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/synm5"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:drawablePadding="12dp"
+                        android:layoutDirection="rtl"
+                        android:paddingTop="0dp"
+                        android:paddingBottom="8dp"
+                        android:text="متعجب ساختن، غافلگیر کردن"
+                        android:textSize="20sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/s15"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:drawableStart="@drawable/ic_sentence"
+                            android:drawablePadding="12dp"
+                            android:padding="8dp"
+                            android:text="I was surprised at his statement."
+                            android:textSize="18sp" />
+
+                        <ImageButton
+                            android:id="@+id/btnS15"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:background="#fff"
+                            android:onClick="speakUp"
+                            android:src="@drawable/ic_speak"
+                            android:text="Speak" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/s25"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:drawableStart="@drawable/ic_sentence"
+                            android:drawablePadding="12dp"
+                            android:padding="8dp"
+                            android:text="He is surprised that a gang is stealing car wheels."
+                            android:textSize="18sp" />
+
+                        <ImageButton
+                            android:id="@+id/btnS25"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:background="#fff"
+                            android:onClick="speakUp"
+                            android:src="@drawable/ic_speak"
+                            android:text="Speak" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+
+            <EditText
+                android:id="@+id/vName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:layout_marginTop="72dp"
+                android:background="#ffffff"
+                android:padding="8dp"
+                android:text=""
+                android:textColor="@color/colorPrimary"
+                android:textSize="48dp" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:onClick="speakUp"
+                android:src="@drawable/ic_speak"
+                android:text="Speak" />
+
+
+        </LinearLayout>
+    </ScrollView>
+</layout>
