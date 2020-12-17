@@ -1,11 +1,16 @@
 package edu.aku.hassannaqvi.csvdownloader;
 
-
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 import com.opencsv.CSVWriter;
 
@@ -26,8 +31,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-
-public class getDataCsv extends AsyncTask<String, String, String> {
+public class DataWorker extends Worker {
 
     private static final Object APP_NAME = "GSED";
     private final String TAG = "GetUCs()";
@@ -35,36 +39,36 @@ public class getDataCsv extends AsyncTask<String, String, String> {
     private Context mContext;
     private URL serverURL = null;
     private ProgressDialog pd;
+    private int length;
 
-    public getDataCsv(Context context) {
-        mContext = context;
+    public DataWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
     }
 
-    public getDataCsv(Context context, URL url) {
-        mContext = context;
-        serverURL = url;
-    }
+    /*
+     * This method is responsible for doing the work
+     * so whatever work that is needed to be performed
+     * we will put it here
+     *
+     * For example, here I am calling the method displayNotification()
+     * It will display a notification
+     * So that we will understand the work is executed
+     * */
 
+    @NonNull
     @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-        pd = new ProgressDialog(mContext);
-        pd.setTitle("Syncing UCs");
-        pd.setMessage("Getting connected to server...");
-        pd.show();
-        Log.d(TAG, "onPreExecute: Starting");
-    }
+    public Result doWork() {
 
-    @Override
-    protected String doInBackground(String... args) {
         Log.d(TAG, "doInBackground: Starting");
+        displayNotification("BL_Random", "Starting Sync");
+
         StringBuilder result = new StringBuilder();
 
         URL url = null;
         try {
             Log.d(TAG, "doInBackground: Trying...");
             if (serverURL == null) {
-                url = new URL("http://43.245.131.159:8080/dss/api/getdata.php");
+                url = new URL("https://vcoe1.aku.edu/covidmat/api/getdata.php");
             } else {
                 url = serverURL;
             }
@@ -82,7 +86,7 @@ public class getDataCsv extends AsyncTask<String, String, String> {
             DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream());
             JSONObject json = new JSONObject();
             try {
-                json.put("table", "childlist");
+                json.put("table", "bl_random");
                 Log.d(TAG, "json.put: Done");
             } catch (JSONException e1) {
                 e1.printStackTrace();
@@ -94,8 +98,9 @@ public class getDataCsv extends AsyncTask<String, String, String> {
             wr.close();
             Log.d(TAG, "doInBackground: " + urlConnection.getResponseCode());
             if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                displayNotification("BL_Random", "Connection Established");
 
-                int length = urlConnection.getContentLength();
+                length = urlConnection.getContentLength();
 
                 InputStream in = new BufferedInputStream(urlConnection.getInputStream());
 
@@ -105,30 +110,36 @@ public class getDataCsv extends AsyncTask<String, String, String> {
                 while ((line = reader.readLine()) != null) {
                     Log.i(TAG, "UCs In: " + line);
                     result.append(line);
+                    displayNotification("BL_Random", line);
+
                 }
             }
         } catch (java.net.SocketTimeoutException e) {
             Log.d(TAG, "doInBackground: " + e.getMessage());
-            return null;
+            displayNotification("BL_Random", "Timeout Error: " + e.getMessage());
+            return Result.failure();
+
         } catch (java.io.IOException e) {
             Log.d(TAG, "doInBackground: " + e.getMessage());
+            displayNotification("BL_Random", "IO Error: " + e.getMessage());
 
-            return null;
+            return Result.failure();
+
         } finally {
 //            urlConnection.disconnect();
         }
 
-        return result.toString();
-    }
-
-    @Override
-    protected void onPostExecute(String result) {
         Log.d(TAG, "onPostExecute: Starting");
-
+        displayNotification("BL_Random", "Received Data");
+        List<String[]> data = new ArrayList<String[]>();
         //Do something with the JSON string
         if (result != null) {
-            String json = result;
+            displayNotification("BL_Random", "Starting Data Processing");
+
+            String json = result.toString();
             if (json.length() > 0) {
+                displayNotification("BL_Random", "Data Size: " + json.length());
+
                 try {
                     JSONArray jsonArray = new JSONArray(json);
                     CSVWriter writer = null;
@@ -143,7 +154,7 @@ public class getDataCsv extends AsyncTask<String, String, String> {
                     File csvFile = new File(csvFolder + File.separator + "childlist.csv");
 
                     writer = new CSVWriter(new FileWriter(csvFile));
-                    List<String[]> data = new ArrayList<String[]>();
+
                     /*
                     // SAMPLE DATA FROM SERVER
                                         {
@@ -157,10 +168,12 @@ public class getDataCsv extends AsyncTask<String, String, String> {
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject jsonObjectCC = jsonArray.getJSONObject(i);
                         data.add(new String[]{
-                                jsonObjectCC.getString("gsedid"),
-                                jsonObjectCC.getString("child_name"),
-                                jsonObjectCC.getString("mother_name"),
-                                jsonObjectCC.getString("dob"),
+                                jsonObjectCC.getString("_id"),
+                                jsonObjectCC.getString("dist_id"),
+                                jsonObjectCC.getString("dist_name"),
+                                jsonObjectCC.getString("sub_dist_name"),
+                                jsonObjectCC.getString("hhno"),
+                                jsonObjectCC.getString("cluster"),
 
                         });
 
@@ -169,24 +182,45 @@ public class getDataCsv extends AsyncTask<String, String, String> {
 
                     writer.close();
                     //callRead();
-                    pd.setTitle("Success");
-                    pd.setMessage("CSV File saved successfully.");
-                    pd.show();
+
                 } catch (JSONException | IOException e) {
                     e.printStackTrace();
-                    pd.setTitle("Error");
-                    pd.setMessage(e.getMessage());
-                    pd.show();
+
                 }
             } else {
-                pd.setMessage("Received: " + json.length() + "");
-                pd.show();
+
             }
         } else {
-            pd.setTitle("Connection Error");
-            pd.setMessage("Server not found!");
-            pd.show();
+
         }
+
+        displayNotification("BL_Random", data.size() + " Records Downloaded Successfully");
+        return Result.success();
     }
 
+    /*
+     * The method is doing nothing but only generating
+     * a simple notification
+     * If you are confused about it
+     * you should check the Android Notification Tutorial
+     * */
+    private void displayNotification(String title, String task) {
+        NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("simplifiedcoding", "simplifiedcoding", NotificationManager.IMPORTANCE_DEFAULT);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(getApplicationContext(), "simplifiedcoding")
+                .setContentTitle(title)
+                .setContentText(task)
+                .setSmallIcon(R.mipmap.ic_launcher);
+
+        final int maxProgress = 100;
+        int curProgress = 0;
+        notification.setProgress(length, curProgress, false);
+
+        notificationManager.notify(1, notification.build());
+    }
 }

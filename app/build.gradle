@@ -2,11 +2,10 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.2"
 
     defaultConfig {
         applicationId "edu.aku.hassannaqvi.csvdownloader"
-        minSdkVersion 22
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -20,16 +19,27 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
-    testImplementation 'junit:junit:4.13'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    implementation 'com.opencsv:opencsv:4.6' // Here is opencsv library
+    implementation 'com.opencsv:opencsv:5.3' // Here is opencsv library
     implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'com.karumi:dexter:6.2.2'
+    implementation "android.arch.work:work-runtime:1.0.1"
+    //Image Compressor
+    implementation 'id.zelory:compressor:2.1.0'
+    implementation 'com.github.aliab:Persian-Date-Picker-Dialog:1.5.2'
+
 
 }

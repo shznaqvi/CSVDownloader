@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">CSVDownloader</string>
+    <string name="app_name">UEN TMK EL PHOTO UPLOAD</string>
+    <string name="title_activity_fullscreen">UEN TMK EL PHOTO UPLOAD</string>
+    <string name="dummy_button">TMK_EL</string>
+    <string name="dummy_content">TMK Photo Upload</string>
+    <string name="PositiveTxt">btnPos</string>
 </resources>
