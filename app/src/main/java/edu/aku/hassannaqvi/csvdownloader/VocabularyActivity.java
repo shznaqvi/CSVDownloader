@@ -3,7 +3,6 @@ package edu.aku.hassannaqvi.csvdownloader;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.view.View;
@@ -22,7 +21,9 @@ import edu.aku.hassannaqvi.csvdownloader.databinding.ActivityVocabularyBinding;
 public class VocabularyActivity extends AppCompatActivity {
 
     TextToSpeech t1;
+
     ActivityVocabularyBinding bi;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +31,7 @@ public class VocabularyActivity extends AppCompatActivity {
         bi = DataBindingUtil.setContentView(this, R.layout.activity_vocabulary);
         bi.setCallback(this);
 
-        bi.synm.setTypeface(Typeface.createFromAsset(this.getAssets(), "ShabnamLightFD.ttf"));
+        // bi.synm.setTypeface(Typeface.createFromAsset(this.getAssets(), "/ShabnamLightFD.ttf"));
 
         t1 = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override

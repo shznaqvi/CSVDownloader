@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="callback"
+            type="edu.aku.hassannaqvi.csvdownloader.Vocabulary2Activity" />
+    </data>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#d6d6d6"
+            android:orientation="vertical"
+            android:padding="24dp"
+            tools:context=".VocabularyActivity">
+
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:elevation="1dp"
+                android:radius="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+
+                    android:padding="14dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layoutDirection="ltr"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/word"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:drawableStart="@drawable/ic_word"
+                            android:drawablePadding="12dp"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="0dp"
+                            android:text="Destroy"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+
+                        <ImageButton
+                            android:id="@+id/btnWord"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:layout_weight="1"
+                            android:background="#ffffff"
+                            android:onClick="speakUp"
+                            android:padding="0dp"
+                            android:src="@drawable/ic_speak"
+                            android:text="Speak" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/synm"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:drawablePadding="12dp"
+                        android:layoutDirection="rtl"
+                        android:paddingTop="0dp"
+                        android:paddingBottom="8dp"
+                        android:text="تخریب کردن، ویران ساختن"
+                        android:textSize="20sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/s1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:drawableStart="@drawable/ic_sentence"
+                            android:drawablePadding="12dp"
+                            android:padding="8dp"
+                            android:text="Several villages have been destroyed by a huge tidal wave"
+                            android:textSize="18sp" />
+
+                        <ImageButton
+                            android:id="@+id/btnS1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:background="#fff"
+                            android:onClick="speakUp"
+                            android:src="@drawable/ic_speak"
+                            android:text="Speak" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/s2"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:drawableStart="@drawable/ic_sentence"
+                            android:drawablePadding="12dp"
+                            android:padding="8dp"
+                            android:text="The school was completely destroyed in an arson attack."
+                            android:textSize="18sp" />
+
+                        <ImageButton
+                            android:id="@+id/btnS2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:background="#fff"
+                            android:onClick="speakUp"
+                            android:src="@drawable/ic_speak"
+                            android:text="Speak" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:orientation="horizontal">
+
+                        <ProgressBar
+                            android:id="@+id/pBar3"
+                            style="?android:attr/progressBarStyleSmall"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:indeterminate="true"
+                            android:minWidth="48dp"
+                            android:minHeight="48dp"
+                            android:progress="1"
+                            android:visibility="gone" />
+
+                        <TextView
+                            android:id="@+id/wmError"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#B71C1C"
+                            android:textSize="16sp"
+                            android:visibility="gone" />
+
+                        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                            android:id="@+id/btnRefresh"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end|bottom"
+                            android:layout_margin="16dp"
+                            android:background="@color/colorPrimary"
+                            android:onClick="speakUp"
+                            android:src="@drawable/ic_refresh" />
+                    </LinearLayout>
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+
+            <EditText
+                android:id="@+id/vName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:layout_marginTop="72dp"
+                android:background="#ffffff"
+                android:padding="8dp"
+                android:text=""
+                android:textColor="@color/colorPrimary"
+                android:textSize="48dp" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:onClick="speakUp"
+                android:src="@drawable/ic_speak"
+                android:text="Speak" />
+
+            <ImageButton
+                android:id="@+id/addWord1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:onClick="speakUp"
+                android:src="@drawable/ic_word" />
+
+            <LinearLayout
+                android:id="@+id/adminView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:elevation="1dp"
+                    android:radius="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#efefefef"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Word"
+                            android:textColor="@color/colorPrimary"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/txtword"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:background="#fff"
+                            android:digits="qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM-'" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Translation"
+                            android:textColor="@color/colorPrimary"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/txttrans"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:background="#fff" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Sentence 1"
+                            android:textColor="@color/colorPrimary"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/txts1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:background="#fff"
+                            android:lines="3" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Sentence 2"
+
+                            android:textColor="@color/colorPrimary"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/txts2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:background="#fff"
+                            android:lines="3" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:orientation="horizontal">
+
+                            <ProgressBar
+                                android:id="@+id/pBar3W"
+                                style="?android:attr/progressBarStyleSmall"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:indeterminate="true"
+                                android:minWidth="48dp"
+                                android:minHeight="48dp"
+                                android:progress="1"
+                                android:visibility="gone" />
+
+                            <TextView
+                                android:id="@+id/wmErrorW"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textColor="#B71C1C"
+                                android:textSize="16sp"
+                                android:visibility="gone" />
+
+                            <ImageButton
+                                android:id="@+id/addWord"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:onClick="speakUp"
+                                android:src="@drawable/ic_word" />
+                        </LinearLayout>
+
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</layout>

@@ -18,7 +18,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".VocabularyActivity"
+            android:name=".Vocabulary2Activity"
             android:label="@string/title_activity_vocabulary"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>

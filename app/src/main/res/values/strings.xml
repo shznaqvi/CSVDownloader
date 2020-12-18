@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">vocabulary App</string>
-    <string name="title_activity_fullscreen">UEN TMK EL PHOTO UPLOAD</string>
+    <string name="app_name">Vocabulary App</string>
+    <string name="title_activity_fullscreen">Vocabulary App</string>
     <string name="dummy_button">TMK_EL</string>
     <string name="dummy_content">TMK Photo Upload</string>
     <string name="PositiveTxt">btnPos</string>
