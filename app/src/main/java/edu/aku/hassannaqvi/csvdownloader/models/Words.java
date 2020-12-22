@@ -1,4 +1,6 @@
-package edu.aku.hassannaqvi.csvdownloader;
+package edu.aku.hassannaqvi.csvdownloader.models;
+
+import android.database.Cursor;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -6,11 +8,12 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Words implements Serializable {
+import edu.aku.hassannaqvi.csvdownloader.interfaces.WordsContract.WordsTable;
+
+public class Words {
 
     private final static long serialVersionUID = 5737885947751540603L;
     private String id;
@@ -18,10 +21,11 @@ public class Words implements Serializable {
     private String trans;
     private String sentcol1;
     private String sentcol2;
-    private Object sentcol3;
+    private String sentcol3;
     private String grade;
     private String category;
     private String pos;
+    private int viewCount;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
@@ -41,7 +45,7 @@ public class Words implements Serializable {
      * @param word
      * @param trans
      */
-    public Words(String id, String word, String trans, String sentcol1, String sentcol2, Object sentcol3, String grade, String category, String pos) {
+    public Words(String id, String word, String trans, String sentcol1, String sentcol2, String sentcol3, String grade, String category, String pos) {
         super();
         this.id = id;
         this.word = word;
@@ -66,6 +70,21 @@ public class Words implements Serializable {
         this.grade = word.getString("grade");
         this.category = word.getString("category");
         this.pos = word.getString("pos");
+
+        return this;
+    }
+
+    public Words Hydrate(Cursor cursor) throws JSONException {
+
+        this.id = cursor.getString(cursor.getColumnIndex(WordsTable.COLUMN_ID));
+        this.word = cursor.getString(cursor.getColumnIndex(WordsTable.COLUMN_WORD));
+        this.trans = cursor.getString(cursor.getColumnIndex(WordsTable.COLUMN_TRANS));
+        this.sentcol1 = cursor.getString(cursor.getColumnIndex(WordsTable.COLUMN_S1));
+        this.sentcol2 = cursor.getString(cursor.getColumnIndex(WordsTable.COLUMN_S2));
+        this.sentcol3 = cursor.getString(cursor.getColumnIndex(WordsTable.COLUMN_S3));
+        this.grade = cursor.getString(cursor.getColumnIndex(WordsTable.COLUMN_GRADE));
+        this.category = cursor.getString(cursor.getColumnIndex(WordsTable.COLUMN_CATEGORY));
+        this.pos = cursor.getString(cursor.getColumnIndex(WordsTable.COLUMN_POS));
 
         return this;
     }
@@ -135,15 +154,15 @@ public class Words implements Serializable {
         return this;
     }
 
-    public Object getSentcol3() {
+    public String getSentcol3() {
         return sentcol3;
     }
 
-    public void setSentcol3(Object sentcol3) {
+    public void setSentcol3(String sentcol3) {
         this.sentcol3 = sentcol3;
     }
 
-    public Words withSentcol3(Object sentcol3) {
+    public Words withSentcol3(String sentcol3) {
         this.sentcol3 = sentcol3;
         return this;
     }
@@ -184,6 +203,15 @@ public class Words implements Serializable {
 
     public Words withPos(String pos) {
         this.pos = pos;
+        return this;
+    }
+
+    public int getViewCount() {
+        return viewCount;
+    }
+
+    public Words setViewCount(int viewCount) {
+        this.viewCount = viewCount;
         return this;
     }
 

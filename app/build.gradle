@@ -47,5 +47,6 @@ dependencies {
     implementation 'com.github.aliab:Persian-Date-Picker-Dialog:1.5.2'
 
     implementation 'org.apache.commons:commons-text:1.9'
+    implementation 'androidx.preference:preference:1.1.1'
 
 }

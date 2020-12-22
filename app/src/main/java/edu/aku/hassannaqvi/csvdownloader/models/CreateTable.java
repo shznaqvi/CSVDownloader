@@ -1,41 +1,31 @@
-package edu.aku.hassannaqvi.csvdownloader;
+package edu.aku.hassannaqvi.csvdownloader.models;
 
+
+import edu.aku.hassannaqvi.csvdownloader.interfaces.WordsContract.WordsTable;
 
 public final class CreateTable {
 
-    public static final String DATABASE_NAME = "blf.db";
-    public static final String DB_NAME = "blf_copy.db";
+    public static final String DATABASE_NAME = "vocapp.db";
     public static final String PROJECT_NAME = "Vocabulary";
-    public static final int DATABASE_VERSION = 2;
-/*
+    public static final int DATABASE_VERSION = 1;
 
-    public static final String SQL_CREATE_FORMSSL = "CREATE TABLE "
-            + FormsSLTable.TABLE_NAME + "("
-            + FormsSLTable.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-            + FormsSLTable.COLUMN_PROJECT_NAME + " TEXT,"
-            + FormsSLTable.COLUMN_DEVICEID + " TEXT,"
-            + FormsSLTable.COLUMN_DEVICETAGID + " TEXT,"
-            + FormsSLTable.COLUMN_SYSDATE + " TEXT,"
-            + FormsSLTable.COLUMN_UID + " TEXT,"
-            + FormsSLTable.COLUMN_GPSLAT + " TEXT,"
-            + FormsSLTable.COLUMN_GPSLNG + " TEXT,"
-            + FormsSLTable.COLUMN_GPSDATE + " TEXT,"
-            + FormsSLTable.COLUMN_GPSACC + " TEXT,"
-            + FormsSLTable.COLUMN_APPVERSION + " TEXT,"
-            + FormsSLTable.COLUMN_SL + " TEXT,"
-*/
-/*
-            + FormsSLTable.COLUMN_ENDINGDATETIME + " TEXT,"
-*//*
 
-     */
-/*           + FormsSLTable.COLUMN_ISTATUS + " TEXT,"
-            + FormsSLTable.COLUMN_ISTATUS96x + " TEXT,"*//*
+    public static final String SQL_CREATE_WORDS = "CREATE TABLE "
+            + WordsTable.TABLE_NAME + "("
+            + WordsTable.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + WordsTable.COLUMN_WORD + " TEXT,"
+            + WordsTable.COLUMN_TRANS + " TEXT,"
+            + WordsTable.COLUMN_S1 + " TEXT,"
+            + WordsTable.COLUMN_S2 + " TEXT,"
+            + WordsTable.COLUMN_S3 + " TEXT,"
+            + WordsTable.COLUMN_GRADE + " TEXT,"
+            + WordsTable.COLUMN_CATEGORY + " TEXT,"
+            + WordsTable.COLUMN_VIEWS + " INTEGER DEFAULT 0,"
+            + WordsTable.COLUMN_POS + " TEXT"
 
-            + FormsSLTable.COLUMN_SYNCED + " TEXT,"
-            + FormsSLTable.COLUMN_SYNCED_DATE + " TEXT"
+
             + " );";
-
+/*
     public static final String SQL_CREATE_FORMSSF = "CREATE TABLE "
             + FormsSFTable.TABLE_NAME + "("
             + FormsSFTable.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"

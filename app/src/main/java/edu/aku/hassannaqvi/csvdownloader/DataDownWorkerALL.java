@@ -25,7 +25,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import static edu.aku.hassannaqvi.csvdownloader.CreateTable.PROJECT_NAME;
+import edu.aku.hassannaqvi.csvdownloader.models.MainApp;
+
+import static edu.aku.hassannaqvi.csvdownloader.models.CreateTable.PROJECT_NAME;
 
 public class DataDownWorkerALL extends Worker {
 
@@ -69,14 +71,14 @@ public class DataDownWorkerALL extends Worker {
     public Result doWork() {
 
         Log.d(TAG, "doWork: Starting");
-        displayNotification(nTitle, "Starting upload");
+        //displayNotification(nTitle, "Starting upload");
 
         StringBuilder result = new StringBuilder();
 
         URL url = null;
         try {
             if (serverURL == null) {
-                url = new URL(MainApp._HOST_URL + "getData.php");
+                url = new URL(MainApp._HOST_URL + MainApp._SERVER_GET_URL);
             } else {
                 url = serverURL;
             }
@@ -103,6 +105,8 @@ public class DataDownWorkerALL extends Worker {
             jsonTable.put("table", uploadTable);
             //jsonTable.put("select", uploadColumns);
             jsonTable.put("filter", uploadWhere);
+            jsonTable.put("limit", "3");
+            jsonTable.put("orderby", "rand()");
             //jsonSync.put(uploadData);
             jsonParam
                     .put(jsonTable);
@@ -119,7 +123,7 @@ public class DataDownWorkerALL extends Worker {
 
             if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 Log.d(TAG, "Connection Response: " + urlConnection.getResponseCode());
-                displayNotification(nTitle, "Connection Established");
+                //displayNotification(nTitle, "Connection Established");
 
                 length = urlConnection.getContentLength();
                 Log.d(TAG, "Content Length: " + length);
@@ -133,7 +137,7 @@ public class DataDownWorkerALL extends Worker {
                     result.append(line);
 
                 }
-                displayNotification(nTitle, "Received Data");
+                //displayNotification(nTitle, "Received Data");
                 Log.d(TAG, "doWork(EN): " + result.toString());
             } else {
 
@@ -145,14 +149,14 @@ public class DataDownWorkerALL extends Worker {
             }
         } catch (java.net.SocketTimeoutException e) {
             Log.d(TAG, "doWork (Timeout): " + e.getMessage());
-            displayNotification(nTitle, "Timeout Error: " + e.getMessage());
+            //displayNotification(nTitle, "Timeout Error: " + e.getMessage());
             data = new Data.Builder()
                     .putString("error", String.valueOf(e.getMessage())).build();
             return Result.failure(data);
 
         } catch (IOException | JSONException e) {
             Log.d(TAG, "doWork (IO Error): " + e.getMessage());
-            displayNotification(nTitle, "IO Error: " + e.getMessage());
+            //displayNotification(nTitle, "IO Error: " + e.getMessage());
             data = new Data.Builder()
                     .putString("error", String.valueOf(e.getMessage())).build();
 
@@ -164,11 +168,11 @@ public class DataDownWorkerALL extends Worker {
 
         //Do something with the JSON string
         if (result != null) {
-            displayNotification(nTitle, "Starting Data Processing");
+            //displayNotification(nTitle, "Starting Data Processing");
 
             //String json = result.toString();
             /*if (json.length() > 0) {*/
-            displayNotification(nTitle, "Data Size: " + result.length());
+            //displayNotification(nTitle, "Data Size: " + result.length());
 
 
             // JSONArray jsonArray = new JSONArray(json);
@@ -185,14 +189,14 @@ public class DataDownWorkerALL extends Worker {
                         .putString("data", String.valueOf(result)).build();
             }
 
-            displayNotification(nTitle, "Uploaded successfully");
+            //displayNotification(nTitle, "Uploaded successfully");
             Log.d(TAG, "doWork: " + result);
             return Result.success(data);
 
         } else {
             data = new Data.Builder()
                     .putString("error", String.valueOf(result)).build();
-            displayNotification(nTitle, "Error Received");
+            //displayNotification(nTitle, "Error Received");
             return Result.failure(data);
         }
 
@@ -205,7 +209,7 @@ public class DataDownWorkerALL extends Worker {
      * If you are confused about it
      * you should check the Android Notification Tutorial
      * */
-    private void displayNotification(String title, String task) {
+    private void ddisplayNotification(String title, String task) {
         NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {

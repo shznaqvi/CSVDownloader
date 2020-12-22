@@ -1,4 +1,4 @@
-package edu.aku.hassannaqvi.csvdownloader;
+package edu.aku.hassannaqvi.csvdownloader.models;
 
 import android.Manifest;
 import android.app.Activity;

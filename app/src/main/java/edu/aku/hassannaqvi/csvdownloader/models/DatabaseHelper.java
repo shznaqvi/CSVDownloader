@@ -1,12 +1,25 @@
-package edu.aku.hassannaqvi.csvdownloader;
+package edu.aku.hassannaqvi.csvdownloader.models;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 import android.widget.Toast;
 
-import static edu.aku.hassannaqvi.csvdownloader.CreateTable.DATABASE_NAME;
-import static edu.aku.hassannaqvi.csvdownloader.CreateTable.DATABASE_VERSION;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.aku.hassannaqvi.csvdownloader.interfaces.WordsContract.WordsTable;
+
+import static edu.aku.hassannaqvi.csvdownloader.models.CreateTable.DATABASE_NAME;
+import static edu.aku.hassannaqvi.csvdownloader.models.CreateTable.DATABASE_VERSION;
+import static edu.aku.hassannaqvi.csvdownloader.models.CreateTable.SQL_CREATE_WORDS;
 
 
 /**
@@ -26,9 +39,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-
+        db.execSQL(SQL_CREATE_WORDS);
 /*        db.execSQL(SQL_CREATE_USERS);
-        db.execSQL(SQL_CREATE_FORMSSL);
+
         db.execSQL(SQL_CREATE_FORMSSF);
         db.execSQL(SQL_CREATE_FORMSWF);
         db.execSQL(SQL_CREATE_FORMSEN);
@@ -121,28 +134,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return allVC;
     }*/
 
-  /*  public int syncUser(JSONArray userList) {
+
+    public int syncWords(JSONObject words) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(UsersTable.TABLE_NAME, null, null);
+        //db.delete(WordsTable.TABLE_NAME, null, null);
         int insertCount = 0;
         try {
-            for (int i = 0; i < userList.length(); i++) {
 
-                JSONObject jsonObjectUser = userList.getJSONObject(i);
 
-                Users user = new Users();
-                user.Sync(jsonObjectUser);
-                ContentValues values = new ContentValues();
+            Words word = new Words();
+            word.Hydrate(words);
+            //      if(!WordExists(word.getId())) {
+            ContentValues values = new ContentValues();
 
-                values.put(UsersTable.COLUMN_USERNAME, user.getUserName());
-                values.put(UsersTable.COLUMN_PASSWORD, user.getPassword());
-                values.put(UsersTable.COLUMN_FULLNAME, user.getFullname());
-                long rowID = db.insert(UsersTable.TABLE_NAME, null, values);
-                if (rowID != -1) insertCount++;
-            }
+            values.put(WordsTable.COLUMN_ID, word.getId());
+            values.put(WordsTable.COLUMN_WORD, word.getWord());
+            values.put(WordsTable.COLUMN_TRANS, word.getTrans());
+            values.put(WordsTable.COLUMN_S1, word.getSentcol1());
+            values.put(WordsTable.COLUMN_S2, word.getSentcol2());
+            values.put(WordsTable.COLUMN_S3, word.getSentcol3());
+            values.put(WordsTable.COLUMN_GRADE, word.getWord());
+            values.put(WordsTable.COLUMN_CATEGORY, word.getWord());
+            values.put(WordsTable.COLUMN_POS, word.getWord());
+            long rowID = db.insert(WordsTable.TABLE_NAME, null, values);
+            if (rowID != -1) insertCount++;
+            //   }
+
 
         } catch (Exception e) {
-            Log.d(TAG, "syncUser(e): " + e);
+            Log.d(TAG, "syncWords: " + e);
             db.close();
         } finally {
             db.close();
@@ -150,7 +170,93 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return insertCount;
     }
 
+    public boolean WordExists(String id) throws SQLException {
+        SQLiteDatabase db = this.getReadableDatabase();
 
+        Cursor mCursor = db.rawQuery("SELECT * FROM " + WordsTable.TABLE_NAME + " WHERE " + WordsTable.COLUMN_ID + "=?", new String[]{id});
+        if (mCursor != null) {
+            return mCursor.getCount() > 0;
+        }
+        return false;
+    }
+
+    public String getViews(String id) throws SQLException {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Log.d(TAG, "getViews: " + id);
+        Cursor mCursor = db.rawQuery("SELECT " + WordsTable.COLUMN_VIEWS +
+                " FROM " + WordsTable.TABLE_NAME +
+                " WHERE " + WordsTable.COLUMN_ID + "=?", new String[]{id});
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+            return mCursor.getString(mCursor.getColumnIndex(WordsTable.COLUMN_VIEWS));
+
+        }
+        return "0";
+    }
+
+    public boolean incrementViews(String id) throws SQLException {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor mCursor = db.rawQuery("UPDATE " + WordsTable.TABLE_NAME + " SET " + WordsTable.COLUMN_VIEWS + " = " + WordsTable.COLUMN_VIEWS + " + 1 WHERE " + WordsTable.COLUMN_ID + "=?", new String[]{id});
+        if (mCursor != null) {
+            return mCursor.getCount() > 0;
+        }
+        return false;
+    }
+
+    public List<Words> getAllWords() throws JSONException {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = null;
+        String[] columns = {
+                WordsTable.COLUMN_ID,
+                WordsTable.COLUMN_WORD,
+                WordsTable.COLUMN_TRANS,
+                WordsTable.COLUMN_S1,
+                WordsTable.COLUMN_S2,
+                WordsTable.COLUMN_S3,
+                WordsTable.COLUMN_GRADE,
+                WordsTable.COLUMN_CATEGORY,
+                WordsTable.COLUMN_POS
+
+        };
+        String whereClause = null;
+        String[] whereArgs = null;
+        String groupBy = null;
+        String having = null;
+
+        String orderBy =
+                WordsTable.COLUMN_VIEWS + " ASC";
+
+        List<Words> allWords = new ArrayList<Words>();
+        try {
+            c = db.query(
+                    WordsTable.TABLE_NAME,  // The table to query
+                    columns,                   // The columns to return
+                    whereClause,               // The columns for the WHERE clause
+                    whereArgs,                 // The values for the WHERE clause
+                    groupBy,                   // don't group the rows
+                    having,                    // don't filter by row groups
+                    orderBy                    // The sort order
+            );
+            while (c.moveToNext()) {
+                Words words = new Words();
+                allWords.add(words.Hydrate(c));
+            }
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+            if (db != null) {
+                db.close();
+            }
+        }
+        return allWords;
+    }
+
+
+
+
+/*
     public boolean Login(String username, String password) throws SQLException {
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -305,12 +411,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public int updateFormSLID() {
+    public int updateWordViews() {
         SQLiteDatabase db = this.getReadableDatabase();
 
 // New value for one column
         ContentValues values = new ContentValues();
-        values.put(FormsSLTable.COLUMN_UID, MainApp.formsSL.get_UID());
+        values.put(WordsTable.COLUMN_VIEWS, WordsTable.COLUMN_VIEWS);
 
 // Which row to update, based on the ID
         String selection = FormsSLTable._ID + " = ?";

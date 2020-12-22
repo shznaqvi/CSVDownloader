@@ -26,7 +26,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
-import static edu.aku.hassannaqvi.csvdownloader.CreateTable.PROJECT_NAME;
+import edu.aku.hassannaqvi.csvdownloader.models.MainApp;
+
+import static edu.aku.hassannaqvi.csvdownloader.models.CreateTable.PROJECT_NAME;
 
 public class DataUpWorkerALL extends Worker {
 
@@ -79,7 +81,7 @@ public class DataUpWorkerALL extends Worker {
         URL url = null;
         try {
             if (serverURL == null) {
-                url = new URL(MainApp._HOST_URL + "sync.php");
+                url = new URL(MainApp._HOST_URL + MainApp._SERVER_URL);
             } else {
                 url = serverURL;
             }

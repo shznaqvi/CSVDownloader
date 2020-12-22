@@ -3,16 +3,22 @@ package edu.aku.hassannaqvi.csvdownloader;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
@@ -34,6 +40,8 @@ import java.util.List;
 import java.util.Locale;
 
 import edu.aku.hassannaqvi.csvdownloader.databinding.ActivityVocabulary2Binding;
+import edu.aku.hassannaqvi.csvdownloader.models.DatabaseHelper;
+import edu.aku.hassannaqvi.csvdownloader.models.Words;
 
 
 public class Vocabulary2Activity extends AppCompatActivity {
@@ -41,14 +49,19 @@ public class Vocabulary2Activity extends AppCompatActivity {
     TextToSpeech t1;
     ActivityVocabulary2Binding bi;
 
+    private final String TAG = "Vocabulary2Activity";
     private List<Words> allWords;
+    Boolean favFlag = false;
     // private RecyclerView.Adapter fupsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         bi = DataBindingUtil.setContentView(this, R.layout.activity_vocabulary2);
+
+
         bi.setCallback(this);
+        setSupportActionBar(bi.toolbar);
 
         // bi.synm.setTypeface(Typeface.createFromAsset(this.getAssets(), "/ShabnamLightFD.ttf"));
 
@@ -65,13 +78,49 @@ public class Vocabulary2Activity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.main_menu, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
 
+        switch (item.getItemId()) {
+            case R.id.action_favorite:
+                item.setIcon(R.drawable.ic_favorite_filled);
+                if (!favFlag) {
+                    item.setIcon(R.drawable.ic_favorite_filled);
+                    favFlag = true;
+
+                    Toast.makeText(this, "Favorite Selected", Toast.LENGTH_SHORT).show();
+
+                } else {
+                    item.setIcon(R.drawable.ic_favorite);
+                    favFlag = false;
+                    Toast.makeText(this, "Favorite Removed", Toast.LENGTH_SHORT).show();
+
+                }
+
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void getWords() {
-        bi.wmError.setError(null);
-        bi.pBar3.setVisibility(View.VISIBLE);
+        bi.wViews.setBackgroundResource(0);
+        DatabaseHelper db = new DatabaseHelper(Vocabulary2Activity.this); // Database Helper
+
+        if (isConnected()) {
+            Log.d(TAG, "getWords: Connected");
+            bi.wmError.setError(null);
+            bi.pBar3.setVisibility(View.VISIBLE);
 //        String where = filter == null ? "" : " mrno='"+filter+"' ";
 /*
         JSONObject json = new JSONObject();
@@ -86,83 +135,161 @@ public class Vocabulary2Activity extends AppCompatActivity {
         }
 */
 
-        Data data = new Data.Builder()
-                .putString("table", "words")
-                //.putString("columns", "_id, sysdate")
-                // .putString("where", where)
-                .build();
+            Data data = new Data.Builder()
+                    .putString("table", "words")
+                    //.putString("columns", "_id, sysdate")
+                    // .putString("where", where)
+                    .build();
 
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build();
+            Constraints constraints = new Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build();
 
+         /* final   PeriodicWorkRequest saveRequest =
+                    new PeriodicWorkRequest.Builder(DataDownWorkerALL.class, 1, TimeUnit.HOURS).setInputData(data).setConstraints(constraints)
+                            // Constraints
+                            .build();*/
 
-        final OneTimeWorkRequest workRequest1 = new OneTimeWorkRequest.Builder(DataDownWorkerALL.class).setInputData(data).setConstraints(constraints).build();
-        WorkManager.getInstance().enqueue(workRequest1);
-
-
-        WorkManager.getInstance().getWorkInfoByIdLiveData(workRequest1.getId())
-                .observe(this, new Observer<WorkInfo>() {
-                    @Override
-                    public void onChanged(@Nullable WorkInfo workInfo) {
-
-
-                        //String progress = workInfo.getProgress().getString("progress");
-                        //bi.wmError.setText("Progress: " + progress);
+            final OneTimeWorkRequest workRequest1 = new OneTimeWorkRequest.Builder(DataDownWorkerALL.class).setInputData(data).setConstraints(constraints).build();
+            WorkManager.getInstance().enqueue(workRequest1);
+/*
+        WorkManager.getInstance().enqueue(saveRequest);
+*/
 
 
-                        if (workInfo.getState() != null &&
-                                workInfo.getState() == WorkInfo.State.SUCCEEDED) {
-
-                            allWords = new ArrayList<Words>();
-
-                            //Displaying the status into TextView
-                            //mTextView1.append("\n" + workInfo.getState().name());
-                            bi.wmError.setVisibility(View.GONE);
-                            bi.pBar3.setVisibility(View.GONE);
+            WorkManager.getInstance().getWorkInfoByIdLiveData(workRequest1.getId())
+                    .observe(this, new Observer<WorkInfo>() {
+                        @Override
+                        public void onChanged(@Nullable WorkInfo workInfo) {
 
 
-                            String message = workInfo.getOutputData().getString("data");
-                            DatabaseHelper db = new DatabaseHelper(Vocabulary2Activity.this); // Database Helper
-                            StringBuilder sSyncedError = new StringBuilder();
-                            JSONObject jsonObject;
-                            try {
+                            //String progress = workInfo.getProgress().getString("progress");
+                            //bi.wmError.setText("Progress: " + progress);
+                            Log.d(TAG, "onChanged: " + workInfo.getState());
 
-                                JSONArray json = new JSONArray(message);
-                                for (int i = 0; i < json.length(); i++) {
-                                    Words words = new Words();
+                            if (workInfo.getState() != null &&
+                                    workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+                                Log.d(TAG, "onChanged: SUCCEEDED");
+                                allWords = new ArrayList<Words>();
 
-                                    allWords.add(words.Hydrate(new JSONObject(json.getString(i))));
+                                //Displaying the status into TextView
+                                //mTextView1.append("\n" + workInfo.getState().name());
+                                bi.wmError.setVisibility(View.GONE);
+                                bi.pBar3.setVisibility(View.GONE);
+
+
+                                String message = workInfo.getOutputData().getString("data");
+                                StringBuilder sSyncedError = new StringBuilder();
+                                JSONObject jsonObject;
+                                try {
+
+                                    JSONArray json = new JSONArray(message);
+                                    allWords.clear();
+                                    for (int i = 0; i < json.length(); i++) {
+                                        Words words = new Words();
+                                        if (!db.WordExists(new JSONObject(json.getString(i)).getString("id"))) {
+
+                                            db.syncWords(new JSONObject(json.getString(i)));
+                                            displayNotification("VocApp", "New Word: " + new JSONObject(json.getString(i)).getString("word"), new JSONObject(json.getString(i)).getInt("id"));
+
+                                        }
+                                        allWords.add(words.Hydrate(new JSONObject(json.getString(i))));
+
+                                    }
+                                } catch (JSONException e) {
+                                    bi.wmError.setText("JSON Error: " + message);
+                                    bi.wmError.setVisibility(View.VISIBLE);
+                                    Log.d("JSON Error", "onChanged: " + message);
+                                    e.printStackTrace();
+
 
                                 }
-                            } catch (JSONException e) {
-                                bi.wmError.setText("JSON Error: " + message);
-                                bi.wmError.setVisibility(View.VISIBLE);
-                                Log.d("JSON Error", "onChanged: " + message);
-                                e.printStackTrace();
+                                //fupsAdapter = new FollowupsAdapter((List<FollowUps>) allWords, FollowUpsList.this);
+                                //recyclerView.setAdapter(fupsAdapter);
 
+                                //bi.s3.setText(allWords.get(0).getSentcol3());
+                                try {
+                                    allWords = db.getAllWords();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                    Log.d(TAG, "getWords: " + e.getMessage());
+                                }
+
+                                int i;
+                                //i = (int) (Math.random() * (allWords.size() - 1) + 1);
+                                i = 0;
+
+                                Log.d("ID", "onChanged: " + allWords.get(i).getId());
+                                db.incrementViews(allWords.get(i).getId());
+                                bi.word.setText(allWords.get(i).getWord());
+                                bi.synm.setText(allWords.get(i).getTrans());
+                                bi.s1.setText(allWords.get(i).getSentcol1());
+                                bi.s2.setText(allWords.get(i).getSentcol2());
+                                bi.wViews.setText(db.getViews(allWords.get(i).getId()));
+                                if (bi.wViews.getText().toString().equals("1")) {
+                                    bi.wViews.setBackgroundResource(R.drawable.ic_star);
+                                }
 
                             }
-                            //fupsAdapter = new FollowupsAdapter((List<FollowUps>) allWords, FollowUpsList.this);
-                            //recyclerView.setAdapter(fupsAdapter);
-                            int i = (int) (Math.random() * (allWords.size() - 1) + 1);
-                            bi.word.setText(allWords.get(i).getWord());
-                            bi.synm.setText(allWords.get(i).getTrans());
-                            bi.s1.setText(allWords.get(i).getSentcol1());
-                            bi.s2.setText(allWords.get(i).getSentcol2());
-                            //bi.s3.setText(allWords.get(0).getSentcol3());
-                        }
-                        //mTextView1.append("\n" + workInfo.getState().name());
-                        if (workInfo.getState() != null &&
-                                workInfo.getState() == WorkInfo.State.FAILED) {
-                            bi.pBar3.setVisibility(View.GONE);
-                            String message = workInfo.getOutputData().getString("error");
-                            bi.wmError.setText(message);
-                            bi.wmError.setVisibility(View.VISIBLE);
+                            //mTextView1.append("\n" + workInfo.getState().name());
+                            if (workInfo.getState() != null &&
+                                    workInfo.getState() == WorkInfo.State.FAILED) {
+                                Log.d(TAG, "onChanged: FAILED");
+                                bi.pBar3.setVisibility(View.GONE);
+                                String message = workInfo.getOutputData().getString("error");
+                                bi.wmError.setText(message);
+                                bi.wmError.setVisibility(View.VISIBLE);
+                                try {
+                                    allWords = db.getAllWords();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                    Log.d(TAG, "getWords: " + e.getMessage());
+                                }
 
+                                int i;
+                                //i = (int) (Math.random() * (allWords.size() - 1) + 1);
+                                i = 0;
+
+                                Log.d("ID", "onChanged: " + allWords.get(i).getId());
+                                db.incrementViews(allWords.get(i).getId());
+                                bi.word.setText(allWords.get(i).getWord());
+                                bi.synm.setText(allWords.get(i).getTrans());
+                                bi.s1.setText(allWords.get(i).getSentcol1());
+                                bi.s2.setText(allWords.get(i).getSentcol2());
+                                bi.wViews.setText(db.getViews(allWords.get(i).getId()));
+                                if (bi.wViews.getText().toString().equals("1")) {
+                                    bi.wViews.setBackgroundResource(R.drawable.ic_star);
+                                }
+                            }
                         }
-                    }
-                });
+                    });
+        } else {
+            Log.d(TAG, "getWords: Not Connected");
+            try {
+                allWords = db.getAllWords();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Log.d(TAG, "getWords: " + e.getMessage());
+            }
+
+            int i;
+            //i = (int) (Math.random() * (allWords.size() - 1) + 1);
+            i = 0;
+
+            Log.d("ID", "onChanged: " + allWords.get(i).getId());
+            db.incrementViews(allWords.get(i).getId());
+            bi.word.setText(allWords.get(i).getWord());
+            bi.synm.setText(allWords.get(i).getTrans());
+            bi.s1.setText(allWords.get(i).getSentcol1());
+            bi.s2.setText(allWords.get(i).getSentcol2());
+            bi.wViews.setText(db.getViews(allWords.get(i).getId()));
+            if (bi.wViews.getText().toString().equals("1")) {
+                bi.wViews.setBackgroundResource(R.drawable.ic_star);
+            }
+
+        }
+
+
     }
 
     public void speakUp(View view) {
@@ -217,6 +344,8 @@ public class Vocabulary2Activity extends AppCompatActivity {
             bi.wmErrorW.setError("Data validation failed!");
             bi.pBar3W.setVisibility(View.GONE);
         }
+
+
     }
 
     private boolean ValidateForm() {
@@ -372,7 +501,7 @@ public class Vocabulary2Activity extends AppCompatActivity {
         }
     }
 
-    private void displayNotification(String title, String task) {
+    private void displayNotification(String title, String task, int id) {
         NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -383,12 +512,22 @@ public class Vocabulary2Activity extends AppCompatActivity {
         NotificationCompat.Builder notification = new NotificationCompat.Builder(getApplicationContext(), "scrlog")
                 .setContentTitle(title)
                 .setContentText(task)
-                .setSmallIcon(R.mipmap.ic_launcher);
+                .setSmallIcon(R.drawable.ic_word);
 
         final int maxProgress = 100;
         int curProgress = 0;
         /*    notification.setProgress(length, curProgress, false);*/
 
-        notificationManager.notify(1, notification.build());
+        notificationManager.notify(id, notification.build());
+    }
+
+    public boolean isConnected() {
+        ConnectivityManager cm =
+                (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        Log.d(TAG, "isConnected: ");
+        return activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
     }
 }
