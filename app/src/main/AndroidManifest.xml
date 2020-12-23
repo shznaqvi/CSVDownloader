@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="edu.aku.hassannaqvi.csvdownloader">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -17,6 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <activity android:name=".GalleryActivity"></activity>
         <activity
             android:name=".Vocabulary2Activity"
             android:label="@string/title_activity_vocabulary"
@@ -31,14 +33,23 @@
             android:name=".FullscreenActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_fullscreen"
-            android:theme="@style/FullscreenTheme">
-
-        </activity>
-        <activity android:name=".MainActivity"></activity>
+            android:theme="@style/FullscreenTheme"></activity>
+        <activity android:name=".MainActivity" />
         <activity
             android:name=".TakePhoto"
             android:hardwareAccelerated="true"
             android:label="@string/app_name" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            tools:replace="android:authorities">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
     </application>
 
 </manifest>

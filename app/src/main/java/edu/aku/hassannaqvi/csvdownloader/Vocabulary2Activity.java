@@ -3,12 +3,18 @@ package edu.aku.hassannaqvi.csvdownloader;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.speech.tts.TextToSpeech;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,7 +27,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.FileProvider;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.work.Constraints;
@@ -35,6 +43,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -529,5 +539,82 @@ public class Vocabulary2Activity extends AppCompatActivity {
         Log.d(TAG, "isConnected: ");
         return activeNetwork != null &&
                 activeNetwork.isConnectedOrConnecting();
+    }
+
+    public void loadView() {
+        CardView cardView = bi.cardView;
+        try {
+            cardView.setDrawingCacheEnabled(true);
+
+            Bitmap bitmap = loadBitmapFromView(cardView);
+            cardView.setDrawingCacheEnabled(false);
+
+            String mPath =
+                    this.getExternalFilesDir(
+                            Environment.DIRECTORY_PICTURES) + "/sid.jpg";
+
+            File imageFile = new File(mPath);
+            FileOutputStream outputStream = new
+                    FileOutputStream(imageFile);
+            int quality = 100;
+            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+            outputStream.flush();
+            outputStream.close();
+            shareWord(mPath);
+
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void shareWord(String path) {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        File imageFileToShare = new File(path);
+        Uri uri = FileProvider.getUriForFile(this, this.getPackageName(), imageFileToShare);
+        //Uri uri = Uri.fromFile(imageFileToShare);
+        sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
+        //sendIntent.putExtra(Intent.EXTRA_TEXT, "https://google.com");
+        sendIntent.setType("image/jpeg");
+        sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
+
+        //  Intent shareIntent = Intent.createChooser(sendIntent, null);
+        // startActivity(sendIntent);
+
+    }
+
+    public Bitmap loadBitmapFromView(View v) {
+
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+
+        v.measure(View.MeasureSpec.makeMeasureSpec(v.getMeasuredWidth(), View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(v.getMeasuredHeight(), View.MeasureSpec.EXACTLY));
+        v.layout(0, 0, v.getMeasuredWidth(), v.getMeasuredHeight());
+        Bitmap returnedBitmap = Bitmap.createBitmap(v.getMeasuredWidth(),
+                v.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(returnedBitmap);
+        v.draw(c);
+        bi.sentBy.setVisibility(View.GONE);
+        bi.fldGrpButtons.setVisibility(View.VISIBLE);
+        bi.btnS1.setVisibility(View.VISIBLE);
+        bi.btnS2.setVisibility(View.VISIBLE);
+        bi.btnWord.setVisibility(View.VISIBLE);
+
+        return returnedBitmap;
+    }
+
+    public void shareUp(View view) {
+        bi.fldGrpButtons.setVisibility(View.GONE);
+        bi.btnS1.setVisibility(View.GONE);
+        bi.btnS2.setVisibility(View.GONE);
+        bi.btnWord.setVisibility(View.GONE);
+        bi.sentBy.setVisibility(View.VISIBLE);
+        if (bi.fldGrpButtons.getVisibility() == View.GONE) {
+            loadView();
+        } else {
+            shareUp(view);
+        }
     }
 }
