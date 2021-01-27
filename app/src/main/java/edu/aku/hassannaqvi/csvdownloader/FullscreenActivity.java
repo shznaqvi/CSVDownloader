@@ -118,7 +118,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
         }*/
         requestMultiplePermissions();
-        setContentView(R.layout.activity_fullscreen);
+        setContentView(R.layout.activity_splashscreen);
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
@@ -218,7 +218,7 @@ public class FullscreenActivity extends AppCompatActivity {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
 
-                        startActivity(new Intent(FullscreenActivity.this, MainActivity.class));
+                        startActivity(new Intent(FullscreenActivity.this, LoginActivity.class));
                     }
 
                     @Override

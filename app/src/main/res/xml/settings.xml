@@ -3,11 +3,19 @@
 
     <SwitchPreferenceCompat
         app:key="notifications"
+        app:isPreferenceVisible="true"
         app:title="Enable message notifications" />
 
     <Preference
         app:key="feedback"
+        app:isPreferenceVisible="true"
         app:summary="Report technical issues or suggest new features"
         app:title="Send feedback" />
+
+
+    <EditTextPreference
+        app:isPreferenceVisible="true"
+        app:key="signature"
+        app:title="Your signature" />
 
 </PreferenceScreen>

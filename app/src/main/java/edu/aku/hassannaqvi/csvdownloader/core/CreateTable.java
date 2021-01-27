@@ -1,4 +1,4 @@
-package edu.aku.hassannaqvi.csvdownloader.models;
+package edu.aku.hassannaqvi.csvdownloader.core;
 
 
 import edu.aku.hassannaqvi.csvdownloader.interfaces.WordsContract.WordsTable;
@@ -12,7 +12,7 @@ public final class CreateTable {
 
     public static final String SQL_CREATE_WORDS = "CREATE TABLE "
             + WordsTable.TABLE_NAME + "("
-            + WordsTable.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + WordsTable.COLUMN_ID + " INTEGER PRIMARY KEY,"
             + WordsTable.COLUMN_WORD + " TEXT,"
             + WordsTable.COLUMN_TRANS + " TEXT,"
             + WordsTable.COLUMN_S1 + " TEXT,"
@@ -21,6 +21,7 @@ public final class CreateTable {
             + WordsTable.COLUMN_GRADE + " TEXT,"
             + WordsTable.COLUMN_CATEGORY + " TEXT,"
             + WordsTable.COLUMN_VIEWS + " INTEGER DEFAULT 0,"
+            + WordsTable.COLUMN_BOOKMARK + " TEXT DEFAULT \"0\","
             + WordsTable.COLUMN_POS + " TEXT"
 
 

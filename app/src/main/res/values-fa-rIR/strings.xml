@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Vocabulary App</string>
+    <string name="app_name">اپ واژگان</string>
     <string name="title_activity_fullscreen">Vocabulary App</string>
     <string name="dummy_button">TMK_EL</string>
     <string name="dummy_content">TMK Photo Upload</string>
@@ -16,4 +16,18 @@
     <string name="action_settings">تنظیمات</string>
     <string name="send_to">ارسال به</string>
     <string name="sent_from">ارسال شده از آپ</string>
+    <string name="new_word">شما یک کلمه جدید برای یادگیری دارید.</string>
+    <string name="action_favorite">موارد دلخواه</string>
+    <string name="action_wallpaper">تصویر زمینه را انتخاب کنید</string>
+    <string name="name">نام</string>
+    <string name="date_of_birth">تاریخ تولد (میلادی)</string>
+    <string name="gender">جنس</string>
+    <string name="female">زن</string>
+    <string name="male">نر</string>
+    <string name="country">کشور</string>
+    <string name="mother_tongue">زبان مادری</string>
+    <string name="email_address">آدرس ایمیل</string>
+    <string name="password">کلمه عبور</string>
+    <string name="login">وارد</string>
+    <string name="register">کلمه عبور</string>
 </resources>

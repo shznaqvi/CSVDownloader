@@ -1,4 +1,4 @@
-package edu.aku.hassannaqvi.csvdownloader.models;
+package edu.aku.hassannaqvi.csvdownloader.core;
 
 import android.content.Context;
 import android.content.SharedPreferences;

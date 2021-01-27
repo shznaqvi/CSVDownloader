@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal"
+    android:foregroundGravity="center_horizontal">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:background="#d6d6d6d6"
+        android:gravity="center_horizontal"
+        android:minWidth="240dp"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:id="@+id/fldGrpWord"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/word"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_word"
+                android:drawablePadding="8dp"
+                android:text="Welcome"
+                android:textAllCaps="true"
+                android:textSize="24dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/synm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:layoutDirection="rtl"
+                android:text="خوش آمدی"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/updateTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#7f7f7f7f"
+                android:textSize="8sp" />
+
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/pBar3"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:indeterminate="true"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
+            android:progress="1"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/wmError"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#B71C1C"
+            android:textSize="16sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+</FrameLayout>

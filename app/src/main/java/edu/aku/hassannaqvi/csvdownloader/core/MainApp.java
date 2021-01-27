@@ -1,4 +1,4 @@
-package edu.aku.hassannaqvi.csvdownloader.models;
+package edu.aku.hassannaqvi.csvdownloader.core;
 
 import android.Manifest;
 import android.app.Activity;
@@ -21,12 +21,6 @@ import org.json.JSONObject;
 
 
 public class MainApp extends Application {
-    public static Context appContext;
-
-    public static Context getAppContext() {
-        return MainApp.appContext;
-    }
-
     public static final String TAG = "AppMain";
     //public static final String _IP = "https://vcoe1.aku.edu";// .LIVE server
     //public static final String _IP = "http://f38158";// .TEST server
@@ -35,7 +29,6 @@ public class MainApp extends Application {
     public static final String _SERVER_URL = "sync.php";
     public static final String _SERVER_GET_URL = "getData.php";
     public static final String _PHOTO_UPLOAD_URL = MainApp._IP + _HOST_URL + "uploads.php";
-
     public static final String _UPDATE_URL = MainApp._IP + "/nns/app/";
     public static final Integer MONTHS_LIMIT = 11;
     public static final Integer DAYS_LIMIT = 29;
@@ -60,35 +53,39 @@ public class MainApp extends Application {
     public static final long MILLISECONDS_IN_MONTH = MILLIS_IN_SECOND * SECONDS_IN_MINUTE * MINUTES_IN_HOUR * HOURS_IN_DAY * DAYS_IN_MONTH;
     private static final long DAYS_IN_2_YEAR = 365 * 2;
     public static final long MILLISECONDS_IN_2Years = MILLIS_IN_SECOND * SECONDS_IN_MINUTE * MINUTES_IN_HOUR * HOURS_IN_DAY * DAYS_IN_2_YEAR;
+    public static Context appContext;
     public static String deviceId;
     public static OnItemClick itemClick;
     public static OnItemClick countItemClick;
     public static AppInfo appInfo;
     public static Boolean admin = false;
-/*
-    public static LiveData<FormsSL> liveForms = new MutableLiveData<>();
-*/
-
     public static String userName = "0000";
+    /*
+        public static LiveData<FormsSL> liveForms = new MutableLiveData<>();
+    */
     /*    public static UsersContract user;
         public static FormsSL formsSL;
         public static FormsSF formsSF;
         public static FormsEN formsEN;
         public static FormsWF formsWF;*/
     public static JSONObject jsonSL;
-
     public static String DeviceURL = "devices.php";
     public static String IMEI;
     public static SharedPreferences sharedPref;
+    public static SharedPreferences.Editor editor;
     public static String DIST_ID;
     public static String sf2;
     public static String s1q2;
     public static String scrdt;
     public static long childAgeinHours;
     protected static LocationManager locationManager;
-/*
-    private LocationLiveData locationlivedata;
-*/
+    /*
+        private LocationLiveData locationlivedata; */
+
+
+    public static Context getAppContext() {
+        return MainApp.appContext;
+    }
 
     public static void setItemClick(OnItemClick itemClick) {
         MainApp.itemClick = itemClick;

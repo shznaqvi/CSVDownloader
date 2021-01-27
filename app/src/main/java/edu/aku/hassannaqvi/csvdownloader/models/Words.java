@@ -26,7 +26,8 @@ public class Words {
     private String category;
     private String pos;
     private int viewCount;
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    private final Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    private int bookmark;
 
     /**
      * No args constructor for use in serialization

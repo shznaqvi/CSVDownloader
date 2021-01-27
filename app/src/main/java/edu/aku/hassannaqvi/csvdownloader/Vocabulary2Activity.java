@@ -4,8 +4,12 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -13,6 +17,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -32,51 +37,95 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.FileProvider;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
+import androidx.preference.PreferenceManager;
 import androidx.work.Constraints;
 import androidx.work.Data;
+import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
+import edu.aku.hassannaqvi.csvdownloader.core.DatabaseHelper;
+import edu.aku.hassannaqvi.csvdownloader.core.MainApp;
 import edu.aku.hassannaqvi.csvdownloader.databinding.ActivityVocabulary2Binding;
-import edu.aku.hassannaqvi.csvdownloader.models.DatabaseHelper;
 import edu.aku.hassannaqvi.csvdownloader.models.Words;
+import id.zelory.compressor.Compressor;
+
+import static edu.aku.hassannaqvi.csvdownloader.core.MainApp.sharedPref;
 
 
 public class Vocabulary2Activity extends AppCompatActivity {
 
+    private static final int SELECT_PICTURE = 22;
     TextToSpeech t1;
     ActivityVocabulary2Binding bi;
+    DatabaseHelper db;
+    Constraints constraints;
+    PeriodicWorkRequest saveRequest;
+
 
     private final String TAG = "Vocabulary2Activity";
     private List<Words> allWords;
     Boolean favFlag = false;
+    Boolean bmFlag = false;
     // private RecyclerView.Adapter fupsAdapter;
+    File sdDir = new File(Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_PICTURES), "VOCAPP");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        bi = DataBindingUtil.setContentView(this, R.layout.activity_vocabulary2);
+        sharedPref = getSharedPreferences("settings", MODE_PRIVATE);
+        MainApp.editor = sharedPref.edit();
+        /*String imageUri = sharedPref.getString("imageUri", "");
+        if(imageUri != ""){
+        setAppWallpaper(imageUri);
+        }*/
 
+        SharedPreferences sharedPreferences =
+                PreferenceManager.getDefaultSharedPreferences(this);
+        String name = sharedPreferences.getString("signature", "");
+
+
+        super.onCreate(savedInstanceState);
+
+
+        bi = DataBindingUtil.setContentView(this, R.layout.activity_vocabulary2);
+        bi.logBox.append("Testing\n=======\n\n");
 
         bi.setCallback(this);
         setSupportActionBar(bi.toolbar);
+        sdDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "VOCAPP");
+
+        if (!sdDir.exists()) {
+            sdDir.mkdirs();
+        }
 
         // bi.synm.setTypeface(Typeface.createFromAsset(this.getAssets(), "/ShabnamLightFD.ttf"));
+        db = new DatabaseHelper(Vocabulary2Activity.this); // Database Helper
 
         getWords();
-
+        scheduleWordFetch();
 
         t1 = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
@@ -105,29 +154,36 @@ public class Vocabulary2Activity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.action_favorite:
-                item.setIcon(R.drawable.ic_favorite_filled);
-                if (!favFlag) {
-                    item.setIcon(R.drawable.ic_favorite_filled);
-                    favFlag = true;
-
-                    Toast.makeText(this, "Favorite Selected", Toast.LENGTH_SHORT).show();
+                item.setIcon(R.drawable.ic_filled_bookmark_24);
+                if (!bmFlag) {
+                    item.setIcon(R.drawable.ic_filled_bookmark_24);
+                    bmFlag = true;
+                    Toast.makeText(this, "Showing only bookmarked words.", Toast.LENGTH_SHORT).show();
 
                 } else {
-                    item.setIcon(R.drawable.ic_favorite);
-                    favFlag = false;
-                    Toast.makeText(this, "Favorite Removed", Toast.LENGTH_SHORT).show();
+                    item.setIcon(R.drawable.ic_twotone_bookmark);
+                    bmFlag = false;
+                    Toast.makeText(this, "Showing only bookmarked words.", Toast.LENGTH_SHORT).show();
 
                 }
+                break;
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                break;
+            case R.id.action_wallpaper:
+                performFileSearch();
+                break;
 
         }
         return super.onOptionsItemSelected(item);
     }
 
+
     private void getWords() {
         bi.wViews.setBackgroundResource(0);
-        DatabaseHelper db = new DatabaseHelper(Vocabulary2Activity.this); // Database Helper
-
-        if (isConnected()) {
+        bi.bookmark.setBackground(bmFlag ? getResources().getDrawable(R.drawable.ic_bookmark) : getResources().getDrawable(R.drawable.ic_unbookmark));
+        favFlag = false;
+        if (isConnected() && !bmFlag && false) {
             Log.d(TAG, "getWords: Connected");
             bi.wmError.setError(null);
             bi.pBar3.setVisibility(View.VISIBLE);
@@ -155,17 +211,24 @@ public class Vocabulary2Activity extends AppCompatActivity {
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build();
 
-         /* final   PeriodicWorkRequest saveRequest =
-                    new PeriodicWorkRequest.Builder(DataDownWorkerALL.class, 1, TimeUnit.HOURS).setInputData(data).setConstraints(constraints)
+          /*  final PeriodicWorkRequest saveRequest =
+                    new PeriodicWorkRequest.Builder(DataDownWorkerALLPeriodic.class, 15, TimeUnit.MINUTES).setInputData(data).setConstraints(constraints)
                             // Constraints
                             .build();*/
 
-            final OneTimeWorkRequest workRequest1 = new OneTimeWorkRequest.Builder(DataDownWorkerALL.class).setInputData(data).setConstraints(constraints).build();
+            final OneTimeWorkRequest workRequest1 = new OneTimeWorkRequest.Builder(DataDownWorkerALL.class).setInputData(data).build();
             WorkManager.getInstance().enqueue(workRequest1);
-/*
-        WorkManager.getInstance().enqueue(saveRequest);
-*/
 
+
+         /*  // WorkManager.getInstance().enqueue(saveRequest);
+            WorkManager.getInstance().getWorkInfoByIdLiveData(saveRequest.getId())
+                    .observe(this, new Observer<WorkInfo>() {
+                        @Override
+                        public void onChanged(@Nullable WorkInfo workInfo) {
+                            bi.logBox.setVisibility(View.VISIBLE);
+                            bi.logBox.append(Calendar.getInstance().getTime() + "\n");
+                        }
+                    });*/
 
             WorkManager.getInstance().getWorkInfoByIdLiveData(workRequest1.getId())
                     .observe(this, new Observer<WorkInfo>() {
@@ -179,6 +242,7 @@ public class Vocabulary2Activity extends AppCompatActivity {
 
                             if (workInfo.getState() != null &&
                                     workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+
                                 Log.d(TAG, "onChanged: SUCCEEDED");
                                 allWords = new ArrayList<Words>();
 
@@ -204,8 +268,10 @@ public class Vocabulary2Activity extends AppCompatActivity {
 
                                         }
                                         allWords.add(words.Hydrate(new JSONObject(json.getString(i))));
+                                        i = json.length() + 1;
 
                                     }
+
                                 } catch (JSONException e) {
                                     bi.wmError.setText("JSON Error: " + message);
                                     bi.wmError.setVisibility(View.VISIBLE);
@@ -219,26 +285,13 @@ public class Vocabulary2Activity extends AppCompatActivity {
 
                                 //bi.s3.setText(allWords.get(0).getSentcol3());
                                 try {
-                                    allWords = db.getAllWords();
+                                    allWords = db.getAllWords(bmFlag);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                     Log.d(TAG, "getWords: " + e.getMessage());
                                 }
 
-                                int i;
-                                //i = (int) (Math.random() * (allWords.size() - 1) + 1);
-                                i = 0;
-
-                                Log.d("ID", "onChanged: " + allWords.get(i).getId());
-                                db.incrementViews(allWords.get(i).getId());
-                                bi.word.setText(allWords.get(i).getWord());
-                                bi.synm.setText(allWords.get(i).getTrans());
-                                bi.s1.setText(allWords.get(i).getSentcol1());
-                                bi.s2.setText(allWords.get(i).getSentcol2());
-                                bi.wViews.setText(db.getViews(allWords.get(i).getId()));
-                                if (bi.wViews.getText().toString().equals("1")) {
-                                    bi.wViews.setBackgroundResource(R.drawable.ic_star);
-                                }
+                                updateCard();
 
                             }
                             //mTextView1.append("\n" + workInfo.getState().name());
@@ -250,56 +303,83 @@ public class Vocabulary2Activity extends AppCompatActivity {
                                 bi.wmError.setText(message);
                                 bi.wmError.setVisibility(View.VISIBLE);
                                 try {
-                                    allWords = db.getAllWords();
+                                    allWords = db.getAllWords(bmFlag);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                     Log.d(TAG, "getWords: " + e.getMessage());
                                 }
 
-                                int i;
-                                //i = (int) (Math.random() * (allWords.size() - 1) + 1);
-                                i = 0;
-
-                                Log.d("ID", "onChanged: " + allWords.get(i).getId());
-                                db.incrementViews(allWords.get(i).getId());
-                                bi.word.setText(allWords.get(i).getWord());
-                                bi.synm.setText(allWords.get(i).getTrans());
-                                bi.s1.setText(allWords.get(i).getSentcol1());
-                                bi.s2.setText(allWords.get(i).getSentcol2());
-                                bi.wViews.setText(db.getViews(allWords.get(i).getId()));
-                                if (bi.wViews.getText().toString().equals("1")) {
-                                    bi.wViews.setBackgroundResource(R.drawable.ic_star);
-                                }
+                                updateCard();
                             }
                         }
                     });
         } else {
             Log.d(TAG, "getWords: Not Connected");
             try {
-                allWords = db.getAllWords();
+                allWords = db.getAllWords(bmFlag);
             } catch (JSONException e) {
                 e.printStackTrace();
                 Log.d(TAG, "getWords: " + e.getMessage());
             }
 
-            int i;
-            //i = (int) (Math.random() * (allWords.size() - 1) + 1);
-            i = 0;
+            updateCard();
 
-            Log.d("ID", "onChanged: " + allWords.get(i).getId());
-            db.incrementViews(allWords.get(i).getId());
-            bi.word.setText(allWords.get(i).getWord());
-            bi.synm.setText(allWords.get(i).getTrans());
-            bi.s1.setText(allWords.get(i).getSentcol1());
-            bi.s2.setText(allWords.get(i).getSentcol2());
+        }
+
+    }
+
+    private void scheduleWordFetch() {
+        Data data = new Data.Builder()
+                .putString("table", "words")
+                //.putString("columns", "_id, sysdate")
+                // .putString("where", where)
+                .build();
+        constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        saveRequest =
+                new PeriodicWorkRequest.Builder(DataDownWorkerALLPeriodic.class, 15, TimeUnit.MINUTES).setInputData(data).setConstraints(constraints)
+                        // Constraints
+                        .build();
+
+        WorkManager.getInstance().enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.KEEP, saveRequest);
+        WorkManager.getInstance().getWorkInfoByIdLiveData(saveRequest.getId())
+                .observe(this, new Observer<WorkInfo>() {
+                    @Override
+                    public void onChanged(@Nullable WorkInfo workInfo) {
+                        bi.logBox.setVisibility(View.VISIBLE);
+                        bi.logBox.append("Last Word at: " + Calendar.getInstance().getTime() + "\n");
+                    }
+                });
+    }
+
+    private void updateCard() {
+        int i;
+        //i = (int) (Math.random() * (allWords.size() - 1) + 1);
+        i = 0;
+        if (!allWords.isEmpty()) {
+            // Log.d("ID", "onChanged: " + allWords.get(0).getId());
+            db.incrementViews(allWords.get(0).getId());
+            bi.word.setText(allWords.get(0).getWord());
+            bi.synm.setText(allWords.get(0).getTrans());
+            bi.s1.setText(allWords.get(0).getSentcol1());
+            bi.s2.setText(allWords.get(0).getSentcol2());
             bi.wViews.setText(db.getViews(allWords.get(i).getId()));
             if (bi.wViews.getText().toString().equals("1")) {
                 bi.wViews.setBackgroundResource(R.drawable.ic_star);
             }
-
+            if (!db.GetBookmark(allWords.get(0).getId()).equals("1")) {
+                // db.SetBookmark(allWords.get(0).getId(), "0");
+                bi.bookmark.setBackground(getResources().getDrawable(R.drawable.ic_unbookmark));
+                favFlag = false;
+            } else {
+                //    db.SetBookmark(allWords.get(0).getId(), "1");
+                bi.bookmark.setBackground(getResources().getDrawable(R.drawable.ic_bookmark));
+                favFlag = true;
+            }
+            Toast.makeText(this, allWords.get(0).getWord() + " : " + db.GetBookmark(allWords.get(0).getId()), Toast.LENGTH_SHORT).show();
         }
-
-
     }
 
     public void speakUp(View view) {
@@ -515,7 +595,7 @@ public class Vocabulary2Activity extends AppCompatActivity {
         NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("scrlog", "BLF", NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationChannel channel = new NotificationChannel("scrlog", "GET_WORD", NotificationManager.IMPORTANCE_DEFAULT);
             notificationManager.createNotificationChannel(channel);
         }
 
@@ -536,7 +616,6 @@ public class Vocabulary2Activity extends AppCompatActivity {
                 (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        Log.d(TAG, "isConnected: ");
         return activeNetwork != null &&
                 activeNetwork.isConnectedOrConnecting();
     }
@@ -599,6 +678,7 @@ public class Vocabulary2Activity extends AppCompatActivity {
         bi.sentBy.setVisibility(View.GONE);
         bi.fldGrpButtons.setVisibility(View.VISIBLE);
         bi.btnS1.setVisibility(View.VISIBLE);
+        bi.bookmark.setVisibility(View.VISIBLE);
         bi.btnS2.setVisibility(View.VISIBLE);
         bi.btnWord.setVisibility(View.VISIBLE);
 
@@ -610,11 +690,210 @@ public class Vocabulary2Activity extends AppCompatActivity {
         bi.btnS1.setVisibility(View.GONE);
         bi.btnS2.setVisibility(View.GONE);
         bi.btnWord.setVisibility(View.GONE);
+        bi.bookmark.setVisibility(View.GONE);
         bi.sentBy.setVisibility(View.VISIBLE);
         if (bi.fldGrpButtons.getVisibility() == View.GONE) {
             loadView();
         } else {
             shareUp(view);
         }
+    }
+
+    private void performFileSearch() {
+/*        Intent photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        String imagepath = Environment.getExternalStorageDirectory() + "/sharedresources/wallpaper.jpg";
+        Uri uriImagePath = Uri.fromFile(new File(imagepath));
+        photoPickerIntent.setType("image/*");
+        photoPickerIntent.putExtra(MediaStore.EXTRA_OUTPUT,uriImagePath);
+        photoPickerIntent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.name());
+        photoPickerIntent.putExtra("return-data", true);
+        startActivityForResult(photoPickerIntent, 1);*/
+
+
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select background"), SELECT_PICTURE);
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == SELECT_PICTURE) {
+                Uri imageUri = data.getData();
+                Log.d(TAG, "onActivityResult: imageUri" + imageUri);
+
+                String path = new File(imageUri.getPath()).getAbsolutePath(); // "/mnt/sdcard/FileName.mp3"
+
+                File file = new File(path);
+                Log.d(TAG, "onActivityResult: file " + file);
+
+                try {
+                    copyFile(file);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                setAppWallpaper(imageUri.toString());
+            }
+        }
+    }
+
+    private void saveAppWallpaper(Bitmap bmp) {
+
+        try (FileOutputStream out = new FileOutputStream(sdDir)) {
+            bmp.compress(Bitmap.CompressFormat.JPEG, 100, out); // bmp is your Bitmap instance
+            // PNG is a lossless format, the compression factor (100) is ignored
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setAppWallpaper(String imageUri) {
+        Bitmap bitmap = null;
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), Uri.parse(imageUri));
+            Log.d(TAG, "onActivityResult: bitmap" + bitmap);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d(TAG, "onActivityResult: IOException" + e.getMessage());
+
+        }
+
+        Resources res = null;
+        Drawable dr = new BitmapDrawable(this.getResources(), bitmap);
+        Log.d(TAG, "onActivityResult: dr" + dr);
+
+        //bi.setID.setImageDrawable(dr);
+
+        bi.setID.setBackground(dr);
+    }
+
+    private void copyFile(File sourceFile) throws IOException {
+
+        String destFile = sdDir + File.separator + "vWallpaper.jpeg";
+        if (!sourceFile.exists()) {
+            Log.d(TAG, "copyFile: No Source " + sourceFile);
+            return;
+        }
+
+        FileChannel source = null;
+        FileChannel destination = null;
+        source = new FileInputStream(sourceFile).getChannel();
+        destination = new FileOutputStream(destFile).getChannel();
+        if (destination != null && source != null) {
+            destination.transferFrom(source, 0, source.size());
+            Log.d(TAG, "copyFile: File tranfered.");
+
+        }
+        if (source != null) {
+            Log.d(TAG, "copyFile:Source cloased");
+
+            source.close();
+        }
+        if (destination != null) {
+            Log.d(TAG, "copyFile:desti cloased");
+
+            destination.close();
+
+        }
+
+    }
+
+    public void setBookMark(View view) {
+
+        if (favFlag) {
+            db.SetBookmark(allWords.get(0).getId(), "0");
+            bi.bookmark.setBackground(getResources().getDrawable(R.drawable.ic_unbookmark));
+            favFlag = false;
+        } else {
+            db.SetBookmark(allWords.get(0).getId(), "1");
+            bi.bookmark.setBackground(getResources().getDrawable(R.drawable.ic_bookmark));
+            favFlag = true;
+        }
+
+    }
+/*    private String getRealPathFromURI(Uri contentURI) {
+        String result;
+        Cursor cursor = getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) { // Source is Dropbox or other similar local file path
+            result = contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            result = cursor.getString(idx);
+            cursor.close();
+        }
+        return result;
+    }*/
+
+
+    private String compressAndMove(String inputFile) {
+        File inputPath = new File(inputFile).getAbsoluteFile();
+        File outputPath = sdDir;
+        File actualImage = new File(inputPath + File.separator + inputFile);
+        try {
+            File compressedImgFile = new Compressor(this)
+                    .setDestinationDirectoryPath(outputPath + File.separator)
+//                    .setMaxWidth(2576)
+//                    .setMaxHeight(1932)
+//
+                    /*      .setMaxWidth(640)
+                          .setMaxHeight(480)*/
+                    .setQuality(88)
+                    .setCompressFormat(Bitmap.CompressFormat.JPEG)
+                    .compressToFile(actualImage);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("tag", e.getMessage());
+
+        }
+        // delete the original file
+        new File(inputPath + File.separator + inputFile).delete();
+        Toast.makeText(this, "Photo Saved in " + outputPath + File.separator + inputFile, Toast.LENGTH_SHORT).show();
+        return inputFile;
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        //   private boolean isWorkScheduled(String tag) {
+        WorkManager instance = WorkManager.getInstance();
+        ListenableFuture<List<WorkInfo>> statuses = instance.getWorkInfosByTag(TAG);
+        try {
+            boolean running = false;
+            List<WorkInfo> workInfoList = statuses.get();
+            for (WorkInfo workInfo : workInfoList) {
+                WorkInfo.State state = workInfo.getState();
+                Data data = workInfo.getOutputData();
+                if (data != Data.EMPTY) {
+                    Log.d(TAG, "onRestart1: " + data);
+                } else {
+                    Log.d(TAG, "onRestart2: " + Data.EMPTY);
+
+                }
+                running = state == WorkInfo.State.RUNNING | state == WorkInfo.State.ENQUEUED;
+                Toast.makeText(this, "State: " + workInfo.getState(), Toast.LENGTH_SHORT).show();
+            }
+
+            //       return running;
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Not Running. " + e.getMessage(), Toast.LENGTH_LONG).show();
+            //       return false;
+        } catch (InterruptedException e) {
+
+            e.printStackTrace();
+            Toast.makeText(this, "Not Running. " + e.getMessage(), Toast.LENGTH_LONG).show();
+
+
+            //       return false;
+        }
+        //  }
+
     }
 }

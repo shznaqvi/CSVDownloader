@@ -21,7 +21,8 @@ public class WordsContract {
         public static final String COLUMN_GRADE = "grade";
         public static final String COLUMN_CATEGORY = "category";
         public static final String COLUMN_POS = "pos";  // Part of Speech
-        public static final String COLUMN_VIEWS = "views";  // Part of Speech
+        public static final String COLUMN_VIEWS = "views";
+        public static final String COLUMN_BOOKMARK = "bookmark";  // Part of Speech
 
         public static String PATH = "words";
         public static final String CONTENT_TYPE =

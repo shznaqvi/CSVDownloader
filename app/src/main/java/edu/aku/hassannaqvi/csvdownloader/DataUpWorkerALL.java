@@ -26,9 +26,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
-import edu.aku.hassannaqvi.csvdownloader.models.MainApp;
+import edu.aku.hassannaqvi.csvdownloader.core.MainApp;
 
-import static edu.aku.hassannaqvi.csvdownloader.models.CreateTable.PROJECT_NAME;
+import static edu.aku.hassannaqvi.csvdownloader.core.CreateTable.PROJECT_NAME;
 
 public class DataUpWorkerALL extends Worker {
 
@@ -40,11 +40,11 @@ public class DataUpWorkerALL extends Worker {
     private final String uploadTable;
     HttpURLConnection urlConnection;
     private JSONObject uploadData;
-    private URL serverURL = null;
+    private final URL serverURL = null;
     private ProgressDialog pd;
     private int length;
     private Data data;
-    private String nTitle = "Enrolment";
+    private final String nTitle = "Enrolment";
 
     public DataUpWorkerALL(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);

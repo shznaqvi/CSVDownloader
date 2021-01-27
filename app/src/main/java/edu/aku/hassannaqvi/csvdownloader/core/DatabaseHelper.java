@@ -1,4 +1,4 @@
-package edu.aku.hassannaqvi.csvdownloader.models;
+package edu.aku.hassannaqvi.csvdownloader.core;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -16,10 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.aku.hassannaqvi.csvdownloader.interfaces.WordsContract.WordsTable;
+import edu.aku.hassannaqvi.csvdownloader.models.Words;
 
-import static edu.aku.hassannaqvi.csvdownloader.models.CreateTable.DATABASE_NAME;
-import static edu.aku.hassannaqvi.csvdownloader.models.CreateTable.DATABASE_VERSION;
-import static edu.aku.hassannaqvi.csvdownloader.models.CreateTable.SQL_CREATE_WORDS;
+import static edu.aku.hassannaqvi.csvdownloader.core.CreateTable.DATABASE_NAME;
+import static edu.aku.hassannaqvi.csvdownloader.core.CreateTable.DATABASE_VERSION;
+import static edu.aku.hassannaqvi.csvdownloader.core.CreateTable.SQL_CREATE_WORDS;
 
 
 /**
@@ -28,7 +29,7 @@ import static edu.aku.hassannaqvi.csvdownloader.models.CreateTable.SQL_CREATE_WO
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private final String TAG = "DatabaseHelper";
-    private Context mContext;
+    private final Context mContext;
 
 
     public DatabaseHelper(Context context) {
@@ -180,6 +181,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return false;
     }
 
+    public String GetBookmark(String id) throws SQLException {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor mCursor = db.rawQuery("SELECT " + WordsTable.COLUMN_BOOKMARK + " FROM " + WordsTable.TABLE_NAME + " WHERE " + WordsTable.COLUMN_ID + "=?", new String[]{id});
+        mCursor.moveToFirst();
+        if (mCursor != null) {
+            //  Toast.makeText(mContext, "BM =" + mCursor.getString(mCursor.getColumnIndex(WordsTable.COLUMN_BOOKMARK)), Toast.LENGTH_SHORT).show();
+            return mCursor.getString(mCursor.getColumnIndex(WordsTable.COLUMN_BOOKMARK));
+        }
+        return "0";
+    }
+
+    public boolean SetBookmark(String id, String bm) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor mCursor = db.rawQuery("UPDATE " + WordsTable.TABLE_NAME + " SET " + WordsTable.COLUMN_BOOKMARK + " = ? WHERE " + WordsTable.COLUMN_ID + "=?", new String[]{bm, id});
+        mCursor.moveToFirst();
+        if (mCursor != null) {
+            Toast.makeText(mContext, "SBM: " + mCursor.getCount(), Toast.LENGTH_SHORT).show();
+            return mCursor.getCount() > 0;
+        }
+        Toast.makeText(mContext, "SBM: false", Toast.LENGTH_SHORT).show();
+
+        return false;
+    }
+
     public String getViews(String id) throws SQLException {
         SQLiteDatabase db = this.getReadableDatabase();
         Log.d(TAG, "getViews: " + id);
@@ -204,7 +231,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return false;
     }
 
-    public List<Words> getAllWords() throws JSONException {
+    public List<Words> getAllWords(Boolean bm) throws JSONException {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = null;
         String[] columns = {
@@ -216,16 +243,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 WordsTable.COLUMN_S3,
                 WordsTable.COLUMN_GRADE,
                 WordsTable.COLUMN_CATEGORY,
-                WordsTable.COLUMN_POS
-
+                WordsTable.COLUMN_POS,
+                WordsTable.COLUMN_BOOKMARK
         };
-        String whereClause = null;
-        String[] whereArgs = null;
+
+        String whereClause;
+        String[] whereArgs;
         String groupBy = null;
         String having = null;
 
         String orderBy =
                 WordsTable.COLUMN_VIEWS + " ASC";
+
+        if (!bm) {
+            whereClause = null;
+            whereArgs = null;
+        } else {
+            whereClause = WordsTable.COLUMN_BOOKMARK + "=?";
+            whereArgs = new String[]{"1"};
+        }
 
         List<Words> allWords = new ArrayList<Words>();
         try {

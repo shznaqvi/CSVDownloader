@@ -2,12 +2,15 @@ package edu.aku.hassannaqvi.csvdownloader;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.TaskStackBuilder;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
@@ -24,34 +27,41 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
+import edu.aku.hassannaqvi.csvdownloader.core.DatabaseHelper;
 import edu.aku.hassannaqvi.csvdownloader.core.MainApp;
+import edu.aku.hassannaqvi.csvdownloader.models.Words;
 
 import static edu.aku.hassannaqvi.csvdownloader.core.CreateTable.PROJECT_NAME;
 
-public class DataDownWorkerALL extends Worker {
+public class DataDownWorkerALLPeriodic extends Worker {
 
     private static final Object APP_NAME = PROJECT_NAME;
-    private final String TAG = "DataWorkerEN()";
+    private final String TAG = "DataDownWorkerALLPeriod";
 
     // to be initialised by workParams
     private final Context mContext;
-    HttpURLConnection urlConnection;
     private final String uploadTable;
-    private String uploadColumns;
     private final String uploadWhere;
     private final URL serverURL = null;
+    private final String nTitle = "Enrolment";
+    HttpURLConnection urlConnection;
+    DatabaseHelper db;
+    private String uploadColumns;
     private ProgressDialog pd;
     private int length;
     private Data data;
-    private final String nTitle = "Enrolment";
+    private ArrayList<Words> allWords;
 
-    public DataDownWorkerALL(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+
+    public DataDownWorkerALLPeriodic(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         mContext = context;
         uploadTable = workerParams.getInputData().getString("table");
         //uploadColumns = workerParams.getInputData().getString("columns");
         uploadWhere = workerParams.getInputData().getString("where");
+        db = new DatabaseHelper(mContext); // Database Helper
 
 
     }
@@ -191,15 +201,50 @@ public class DataDownWorkerALL extends Worker {
 
             //displayNotification(nTitle, "Uploaded successfully");
             Log.d(TAG, "doWork: " + result);
-            return Result.success(data);
+            Log.d(TAG, "onChanged: SUCCEEDED");
+            allWords = new ArrayList<Words>();
 
-        } else {
-            data = new Data.Builder()
-                    .putString("error", String.valueOf(result)).build();
-            //displayNotification(nTitle, "Error Received");
-            return Result.failure(data);
+            //Displaying the status into TextView
+            //mTextView1.append("\n" + workInfo.getState().name());
+
+
+            String message = String.valueOf(result);
+            StringBuilder sSyncedError = new StringBuilder();
+            JSONObject jsonObject;
+            try {
+
+                JSONArray json = new JSONArray(message);
+                allWords.clear();
+                for (int i = 0; i < json.length(); i++) {
+                    Words words = new Words();
+                    if (!db.WordExists(new JSONObject(json.getString(i)).getString("id"))) {
+
+                        db.syncWords(new JSONObject(json.getString(i)));
+                        displayNotification("VocApp", "New Word: " + new JSONObject(json.getString(i)).getString("word"), new JSONObject(json.getString(i)).getInt("id"));
+
+                    }
+                    allWords.add(words.Hydrate(new JSONObject(json.getString(i))));
+                    i = json.length();
+                }
+            } catch (JSONException e) {
+
+                e.printStackTrace();
+
+                data = new Data.Builder()
+                        .putString("error", e.getMessage()).build();
+                Log.d(TAG, "doWork: " + e.getMessage());
+
+                return Result.failure(data);
+            }
+            //fupsAdapter = new FollowupsAdapter((List<FollowUps>) allWords, FollowUpsList.this);
+            //recyclerView.setAdapter(fupsAdapter);
+
+            //bi.s3.setText(allWords.get(0).getSentcol3());
+
         }
 
+
+        return Result.success();
 
     }
 
@@ -209,23 +254,61 @@ public class DataDownWorkerALL extends Worker {
      * If you are confused about it
      * you should check the Android Notification Tutorial
      * */
-    private void ddisplayNotification(String title, String task) {
+    private void displayNotification(String title, String task, int id) {
+
+        // Create an Intent for the activity you want to start
+        Intent resultIntent = new Intent(mContext, Vocabulary2Activity.class);
+
+        // Create the TaskStackBuilder and add the intent, which inflates the back stack
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(mContext);
+        stackBuilder.addNextIntentWithParentStack(resultIntent);
+
+        // Get the PendingIntent containing the entire back stack
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
         NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("scrlog", "BLF", NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationChannel channel = new NotificationChannel("VOCAPP", "NEW_WORDS", NotificationManager.IMPORTANCE_DEFAULT);
             notificationManager.createNotificationChannel(channel);
         }
 
-        NotificationCompat.Builder notification = new NotificationCompat.Builder(getApplicationContext(), "scrlog")
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(getApplicationContext(), "VOCAPP")
                 .setContentTitle(title)
                 .setContentText(task)
-                .setSmallIcon(R.mipmap.ic_launcher);
+                .setAutoCancel(true)
+                .setColor(mContext.getResources().getColor(R.color.red))
+                //.setContentText(mContext.getResources().getString(R.string.new_word))
+                .setSmallIcon(R.drawable.ic_word);
+
+        notification.setContentIntent(resultPendingIntent);
 
         final int maxProgress = 100;
         int curProgress = 0;
-        notification.setProgress(length, curProgress, false);
+        /*    notification.setProgress(length, curProgress, false);*/
 
-        notificationManager.notify(1, notification.build());
+        notificationManager.notify(id, notification.build());
     }
+
+ /*   static void updateAppWidget(Context context,
+                                AppWidgetManager appWidgetManager, int appWidgetId) {
+
+
+
+        Intent intent = new Intent(context, UpdateService.class);
+        PendingIntent pendingIntent = PendingIntent.getService(context, 0,
+                intent, 0);
+
+
+        RemoteViews remoteViews = new RemoteViews(context.getPackageName(),
+                R.layout.widget);
+        remoteViews.setOnClickPendingIntent(R.id.LinearLayout01, pendingIntent);
+
+        remoteViews.setTextViewText(R.id.widget_textview, text);
+
+        // Tell the widget manager
+        appWidgetManager.updateAppWidget(appWidgetId, remoteViews);
+    }*/
 }
