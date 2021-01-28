@@ -1,72 +1,324 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:gravity="center_horizontal|center_vertical"
-    android:orientation="vertical"
-    android:background="#f7f7f7"
-    android:padding="24dp"
-    tools:context=".MainActivity">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <TextView
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="child"
+            type="edu.aku.hassannaqvi.csvdownloader.Child" />
+    </data>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="24dp"
-        android:gravity="center"
-        android:text="DOWNLOAD AS CSV"
-        android:textColor="@color/colorPrimary"
-        android:textSize="24sp" />
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal|center_vertical"
+        android:orientation="vertical"
+        android:background="#f7f7f7"
+        android:padding="24dp"
+        tools:context=".MainActivity">
 
-    <View
-        android:layout_width="256dp"
-        android:layout_height="256dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="24dp"
+            android:gravity="center"
+            android:text="GSED Utility"
+            android:textColor="@color/colorPrimary"
+            android:textSize="24sp" />
 
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#fefefe"
-        android:elevation="@dimen/cardview_default_elevation"
-        app:cardCornerRadius="@dimen/cardview_default_radius">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="460dp"
+
+            >
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+
+                            <!--DISTRICT (Name)-->
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Parent Study ID" />
+
+
+                            <EditText
+                                android:id="@+id/dssid"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1" />
+
+
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/getChild"
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:background="@drawable/get_data"
+                            android:onClick="getChild" />
+                    </LinearLayout>
+
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="GSED ID" />
+
+
+                                <TextView
+                                    android:id="@+id/gsedid"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:onClick="setThis"
+                                    android:text="@={child.gsedId}" />
+
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Child Name" />
+
+
+                                <TextView
+                                    android:id="@+id/childname"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="@{child.childName}" />
+
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Child Sex" />
+
+
+                                <TextView
+                                    android:id="@+id/gender"
+                                    android:layout_width="match_parent"
+
+                                    android:layout_height="wrap_content"
+                                    android:text="@{child.childSex}" />
+
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Mother's Name" />
+
+
+                                <TextView
+                                    android:id="@+id/mName"
+                                    android:layout_width="match_parent"
+
+                                    android:layout_height="wrap_content"
+                                    android:text="@{child.motherName}" />
+
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Father's Name" />
+
+
+                                <TextView
+                                    android:id="@+id/fathername"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="@{child.fatherName}" />
+
+
+                            </LinearLayout>
+
+
+                        </LinearLayout>
+
+
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+                <!--// Structure Type-->
+            </LinearLayout>
+        </ScrollView>
+
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#fefefe"
+            android:elevation="@dimen/cardview_default_elevation"
+            app:cardCornerRadius="@dimen/cardview_default_radius">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/downloadPrepop"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical|center_horizontal"
+                        android:layout_margin="12dp"
+                        android:background="@color/colorPrimary"
+                        android:elevation="1dp"
+                        android:onClick="downloadPrepop"
+                        android:padding="8dp"
+                        android:radius="2dp"
+                        android:text="Download for Eligibility"
+                        android:textColor="#ffff" />
+
+                    <Button
+                        android:id="@+id/downloadAllCSVs"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical|center_horizontal"
+                        android:layout_margin="12dp"
+                        android:background="@color/colorPrimary"
+                        android:elevation="1dp"
+                        android:onClick="downloadCSV"
+                        android:padding="8dp"
+                        android:radius="2dp"
+                        android:text=" Download All CSVs "
+                        android:textColor="#ffff" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="24dp"
+                    android:gravity="center"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="11sp"
+                    android:text="Downloaded CSV file can be used from WHO GSED App" />
+            </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+        <EditText
+            android:id="@+id/serverURL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="24dp"
+            android:layout_marginBottom="0dp"
+            android:background="#fefefe"
+            android:hint="Enter Server URL here [optional]. Server setup is required"
+            android:visibility="gone"
+            android:padding="12dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_gravity="bottom|end"
+            android:padding="24dp">
 
             <Button
-                android:id="@+id/button"
+                android:id="@+id/openApp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:onClick="downloadCSV"
-                android:background="@color/colorPrimary"
+                android:layout_gravity="bottom|end"
+                android:background="@color/colorAccent"
                 android:elevation="1dp"
+
+                android:onClick="downloadCSV"
                 android:padding="8dp"
                 android:radius="2dp"
-                android:text=" Download as CSV "
-                android:textColor="#ffff" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="24dp"
-                android:gravity="center"
-                android:textColor="@color/colorAccent"
-                android:textSize="11sp"
-                android:text="Downloaded CSV file can be found in DOWNLOADS -> GSED folder" />
+                android:text="OPEN GSED APP"
+                android:textColor="@color/colorPrimary" />
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <EditText
-        android:id="@+id/severURL"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="24dp"
-        android:background="#fefefe"
-
-        android:hint="Enter Server URL here. [optional]"
-        android:padding="12dp" />
-</LinearLayout>
+    </LinearLayout>
+</layout>
