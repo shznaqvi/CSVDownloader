@@ -101,7 +101,7 @@ public class getEligibilityCsv extends AsyncTask<String, String, String> {
 
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    Log.i(TAG, "UCs In: " + line);
+                    Log.i(TAG, "ELIgi In: " + line);
                     result.append(line);
                 }
             }
@@ -149,7 +149,9 @@ public class getEligibilityCsv extends AsyncTask<String, String, String> {
                         }
 
                         File csvFile = new File(csvFolder + File.separator + "csv_prepop.csv");
-
+                        if (!csvFile.exists()) {
+                            csvFolder.mkdirs();
+                        }
                         writer = new CSVWriter(new FileWriter(csvFile));
                         List<String[]> data = new ArrayList<String[]>();
                     /*

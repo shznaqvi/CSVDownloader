@@ -110,7 +110,7 @@ public class getDataCsv extends AsyncTask<String, String, String> {
 
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    Log.i(TAG, "UCs In: " + line);
+                    Log.i(TAG, "CSVs In: " + line);
                     result.append(line);
                 }
             }

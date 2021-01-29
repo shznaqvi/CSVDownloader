@@ -43,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-
+<!--
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -61,7 +61,7 @@
                             android:orientation="vertical">
 
 
-                            <!--DISTRICT (Name)-->
+                            &lt;!&ndash;DISTRICT (Name)&ndash;&gt;
 
                             <TextView
                                 android:layout_width="match_parent"
@@ -225,7 +225,7 @@
 
 
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </androidx.cardview.widget.CardView>-->
                 <!--// Structure Type-->
             </LinearLayout>
         </ScrollView>
