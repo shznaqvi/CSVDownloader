@@ -131,7 +131,7 @@ public class Vocabulary2Activity extends AppCompatActivity {
             @Override
             public void onInit(int status) {
                 if (status != TextToSpeech.ERROR) {
-                    t1.setLanguage(Locale.ENGLISH);
+                    t1.setLanguage(new Locale("urd"));
                     t1.setPitch(0.8f);
                     t1.setSpeechRate(0.66f);
                 }
@@ -388,6 +388,9 @@ public class Vocabulary2Activity extends AppCompatActivity {
 
             case R.id.btnWord:
                 message = bi.word.getText().toString();
+                break;
+            case R.id.btnWordUrdu:
+                message = bi.synm.getText().toString();
                 break;
             case R.id.btnS1:
                 message = bi.s1.getText().toString();
