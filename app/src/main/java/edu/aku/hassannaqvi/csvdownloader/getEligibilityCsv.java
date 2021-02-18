@@ -149,9 +149,9 @@ public class getEligibilityCsv extends AsyncTask<String, String, String> {
                         }
 
                         File csvFile = new File(csvFolder + File.separator + "csv_prepop.csv");
-                        if (!csvFile.exists()) {
+                        /*if (!csvFile.exists()) {
                             csvFolder.mkdirs();
-                        }
+                        }*/
                         writer = new CSVWriter(new FileWriter(csvFile));
                         List<String[]> data = new ArrayList<String[]>();
                     /*
