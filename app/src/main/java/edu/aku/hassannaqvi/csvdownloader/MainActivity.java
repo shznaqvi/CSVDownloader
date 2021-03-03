@@ -4,8 +4,10 @@ import android.Manifest;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,9 +19,20 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.List;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -74,6 +87,37 @@ public class MainActivity extends AppCompatActivity {
             imei=telephonyManager.getDeviceId();
         }*/
         //Toast.makeText(this, getDeviceId(this), Toast.LENGTH_SHORT).show();
+        String plaintext = "This is a testing text for encryption and decryption.";
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] key = "asSa%s|n'$ crEed".getBytes();
+        secureRandom.nextBytes(key);
+        SecretKey secretKey = new SecretKeySpec(key, "AES");
+
+        final Cipher cipher;
+        String aadd = "From: <deviceid>, To: vcoe1.aku.edu";
+        try {
+            cipher = Cipher.getInstance("AES/GCM/NoPadding");
+
+            byte[] iv = new byte[cipher.getBlockSize()]; //NEVER REUSE THIS IV WITH SAME KEY
+            secureRandom.nextBytes(iv);
+
+            GCMParameterSpec parameterSpec = new GCMParameterSpec(128, iv); //256 bit auth tag length
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, parameterSpec);
+            //cipher.updateAAD(aadd.getBytes());
+
+            byte[] cipherText = cipher.doFinal(plaintext.getBytes(StandardCharsets.UTF_8));
+
+            String encryptedText = Base64.encodeToString(iv, Base64.DEFAULT) + Base64.encodeToString(cipherText, Base64.DEFAULT);
+            Toast.makeText(this, encryptedText, Toast.LENGTH_LONG + Toast.LENGTH_LONG).show();
+            Log.d("TAG", "onCreate: encryptedText: " + encryptedText);
+/*
+            return String.format("%s%s%s", new String(Base64.encode(iv)),
+                    DELIMITER, new String(Base64.encode(cipherText)));*/
+
+        } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException | InvalidKeyException | NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public String computeHash(String input) throws NoSuchAlgorithmException, UnsupportedEncodingException {
@@ -82,13 +126,15 @@ public class MainActivity extends AppCompatActivity {
 
         byte[] byteData = digest.digest(input.getBytes(StandardCharsets.UTF_8));
         Log.d("TAG", "computeHash: bytetostring" + byteData.toString());
-        Log.d("TAG", "computeHash: byte test" + byteData.equals("0xE7CF3EF4F17C3999A94F2C6F612E8A888E5B1026878E4E19398B23BD38EC221A"));
+        Log.d("TAG", "computeHash: byte test" + byteData.equals("E7CF3EF4F17C3999A94F2C6F612E8A888E5B1026878E4E19398B23BD38EC221A"));
         StringBuffer sb = new StringBuffer();
 
         for (int i = 0; i < byteData.length; i++) {
             sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
         }
         Log.d("TAG", "computeHash: " + sb.toString());
+        Log.d("TAG", "computeHash: byte test" + byteData.equals("e7cf3ef4f17c3999a94f2c6f612e8a888e5b1026878e4e1939"));
+
         return sb.toString();
     }
 /*    public static String getDeviceId(Context context) {
