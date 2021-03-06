@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,19 +18,15 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.List;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 
@@ -40,6 +35,114 @@ public class MainActivity extends AppCompatActivity {
     private static final String APP_NAME = "GSED";
     //tivityMainBinding bi;
 
+    Cipher cipher;
+    /* final static Base64.Encoder encorder = Base64.getEncoder();
+     final static Base64.Decoder decorder = Base64.getDecoder();*/
+    SecureRandom secureRandom;
+
+    public static String encrypt(String plain) {
+        try {
+            byte[] iv = new byte[16];
+            new SecureRandom().nextBytes(iv);
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec("asSa%s|n'$ crEed".getBytes(StandardCharsets.UTF_8), "AES"), new IvParameterSpec(iv));
+            byte[] cipherText = cipher.doFinal(plain.getBytes(StandardCharsets.UTF_8));
+
+            byte[] ivAndCipherText = new byte[iv.length + cipherText.length];
+            System.arraycopy(iv, 0, ivAndCipherText, 0, iv.length);
+            System.arraycopy(cipherText, 0, ivAndCipherText, iv.length, cipherText.length);
+            return Base64.encodeToString(ivAndCipherText, Base64.NO_WRAP);
+        } catch (Exception e) {
+            e.getMessage();
+            return null;
+        }
+    }
+
+    public String computeHash(String input) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        digest.reset();
+
+        byte[] byteData = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+        Log.d("TAG", "computeHash: bytetostring" + byteData.toString());
+        Log.d("TAG", "computeHash: byte test" + byteData.equals("E7CF3EF4F17C3999A94F2C6F612E8A888E5B1026878E4E19398B23BD38EC221A"));
+        StringBuffer sb = new StringBuffer();
+
+        for (int i = 0; i < byteData.length; i++) {
+            sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+        }
+        Log.d("TAG", "computeHash: " + sb.toString());
+        Log.d("TAG", "computeHash: byte test" + byteData.equals("e7cf3ef4f17c3999a94f2c6f612e8a888e5b1026878e4e1939"));
+
+        return sb.toString();
+    }
+/*    public static String getDeviceId(Context context) {
+
+        String deviceId;
+
+
+            final TelephonyManager mTelephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            if (mTelephony.getDeviceId() != null) {
+                deviceId = mTelephony.getDeviceId();
+            } else {
+                deviceId = Settings.Secure.getString(
+                        context.getContentResolver(),
+                        Settings.Secure.ANDROID_ID);
+            }
+
+
+        return deviceId;
+    }*/
+
+
+    public void downloadCSV(View view) {
+
+
+        new getDataCsv(this).execute();
+
+    }
+
+
+    public void downloadPrepop(View view) {
+        //      bi.serverURL.setError(null);
+
+
+        new getEligibilityCsv(this).execute();
+
+    }
+
+   /* public void getChild(View view) {
+
+        if (bi.dssid.getText().toString().equals("")) {
+            Toast.makeText(this, "Please enter a valid Parents_Study_ID", Toast.LENGTH_SHORT).show();
+        } else {
+
+            new getDataCsv(this, bi.dssid.getText().toString()).execute();
+
+
+        }
+
+    }*/
+
+    public void setThis(View view) {
+        //bi.gsedid.setText(MainApp.child.getGsedId());
+        MainApp.child.setGsedId("99999999");
+
+    }
+
+    public static String decrypt(String encoded) {
+        try {
+            byte[] ivAndCipherText = Base64.decode(encoded, Base64.NO_WRAP);
+            byte[] iv = Arrays.copyOfRange(ivAndCipherText, 0, 16);
+            byte[] cipherText = Arrays.copyOfRange(ivAndCipherText, 16, ivAndCipherText.length);
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec("asSa%s|n'$ crEed".getBytes(StandardCharsets.UTF_8), "AES"), new IvParameterSpec(iv));
+            return new String(cipher.doFinal(cipherText), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            e.getMessage();
+            return null;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,108 +191,39 @@ public class MainActivity extends AppCompatActivity {
         }*/
         //Toast.makeText(this, getDeviceId(this), Toast.LENGTH_SHORT).show();
         String plaintext = "This is a testing text for encryption and decryption.";
-        SecureRandom secureRandom = new SecureRandom();
+        secureRandom = new SecureRandom();
         byte[] key = "asSa%s|n'$ crEed".getBytes();
         secureRandom.nextBytes(key);
-        SecretKey secretKey = new SecretKeySpec(key, "AES");
+        //SecretKey secretKey = new SecretKeySpec(key, "AES");
+        //SecretKey secretKey = "asSa%s|n'$ crEed";
 
-        final Cipher cipher;
+
         String aadd = "From: <deviceid>, To: vcoe1.aku.edu";
-        try {
-            cipher = Cipher.getInstance("AES/GCM/NoPadding");
+
+            /*  cipher = Cipher.getInstance("AES/GCM/NoPadding");
 
             byte[] iv = new byte[cipher.getBlockSize()]; //NEVER REUSE THIS IV WITH SAME KEY
             secureRandom.nextBytes(iv);
 
             GCMParameterSpec parameterSpec = new GCMParameterSpec(128, iv); //256 bit auth tag length
+            Log.d("TAG", "onCreate: key"+secretKey);
             cipher.init(Cipher.ENCRYPT_MODE, secretKey, parameterSpec);
             //cipher.updateAAD(aadd.getBytes());
 
             byte[] cipherText = cipher.doFinal(plaintext.getBytes(StandardCharsets.UTF_8));
 
-            String encryptedText = Base64.encodeToString(iv, Base64.DEFAULT) + Base64.encodeToString(cipherText, Base64.DEFAULT);
+           String encryptedText = Base64.encodeToString(iv, Base64.NO_WRAP) + Base64.encodeToString(cipherText, Base64.NO_WRAP);
             Toast.makeText(this, encryptedText, Toast.LENGTH_LONG + Toast.LENGTH_LONG).show();
             Log.d("TAG", "onCreate: encryptedText: " + encryptedText);
-/*
-            return String.format("%s%s%s", new String(Base64.encode(iv)),
-                    DELIMITER, new String(Base64.encode(cipherText)));*/
 
-        } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException | InvalidKeyException | NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException e) {
-            e.printStackTrace();
-        }
+          *//*  return String.format("%s%s%s", new String(Base64.encode(iv)),
+                    DELIMITER, new String(Base64.encode(cipherText)));*//*
+         */
+        //  byte[] key = "asSa%s|n'$ crEed".getBytes();
+        SecretKey originalKey = new SecretKeySpec(key, 0, key.length, "AES");
+        Log.d("TAG", "onCreate: CBC-En " + encrypt(plaintext));
+        Log.d("TAG", "onCreate: CBC-De " + decrypt("zJc6PCPvo4Nup2IELdEv15BFiNecSgfIFTOWmActv+mIUVaM5w1b0Ck3ctDH6vA1"));
+
 
     }
-
-    public String computeHash(String input) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        digest.reset();
-
-        byte[] byteData = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-        Log.d("TAG", "computeHash: bytetostring" + byteData.toString());
-        Log.d("TAG", "computeHash: byte test" + byteData.equals("E7CF3EF4F17C3999A94F2C6F612E8A888E5B1026878E4E19398B23BD38EC221A"));
-        StringBuffer sb = new StringBuffer();
-
-        for (int i = 0; i < byteData.length; i++) {
-            sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
-        }
-        Log.d("TAG", "computeHash: " + sb.toString());
-        Log.d("TAG", "computeHash: byte test" + byteData.equals("e7cf3ef4f17c3999a94f2c6f612e8a888e5b1026878e4e1939"));
-
-        return sb.toString();
-    }
-/*    public static String getDeviceId(Context context) {
-
-        String deviceId;
-
-
-            final TelephonyManager mTelephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            if (mTelephony.getDeviceId() != null) {
-                deviceId = mTelephony.getDeviceId();
-            } else {
-                deviceId = Settings.Secure.getString(
-                        context.getContentResolver(),
-                        Settings.Secure.ANDROID_ID);
-            }
-
-
-        return deviceId;
-    }*/
-
-
-    public void downloadCSV(View view) {
-
-
-            new getDataCsv(this).execute();
-
-    }
-
-
-    public void downloadPrepop(View view) {
-        //      bi.serverURL.setError(null);
-
-
-        new getEligibilityCsv(this).execute();
-
-    }
-
-   /* public void getChild(View view) {
-
-        if (bi.dssid.getText().toString().equals("")) {
-            Toast.makeText(this, "Please enter a valid Parents_Study_ID", Toast.LENGTH_SHORT).show();
-        } else {
-
-            new getDataCsv(this, bi.dssid.getText().toString()).execute();
-
-
-        }
-
-    }*/
-
-    public void setThis(View view) {
-        //bi.gsedid.setText(MainApp.child.getGsedId());
-        MainApp.child.setGsedId("99999999");
-
-    }
-
-
 }
