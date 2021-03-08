@@ -177,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Log.d("TAG", "onCreate: " + str);
+        Log.d("TAG", "onCreate: []" + decrypt("OGVQmk4qRZxX/JW9juQ0V43jU42zRBDbvwToSmJtiIE="));
         Log.d("TAG", "onCreate test: " + str.equals("E7CF3EF4F17C3999A94F2C6F612E8A888E5B1026878E4E19398B23BD38EC221A".toLowerCase()));
         // bi.setChild(MainApp.child);
 

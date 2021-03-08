@@ -4,6 +4,7 @@ package edu.aku.hassannaqvi.csvdownloader;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -23,8 +24,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 
 public class getDataCsv extends AsyncTask<String, String, String> {
@@ -128,10 +135,28 @@ public class getDataCsv extends AsyncTask<String, String, String> {
         return result.toString();
     }
 
-    @Override
-    protected void onPostExecute(String result) {
-        Log.d(TAG, "onPostExecute: Starting: " + result);
+    public static String decrypt(String encoded) {
+        try {
+            byte[] ivAndCipherText = Base64.decode(encoded, Base64.NO_WRAP);
+            byte[] iv = Arrays.copyOfRange(ivAndCipherText, 0, 16);
+            byte[] cipherText = Arrays.copyOfRange(ivAndCipherText, 16, ivAndCipherText.length);
 
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec("asSa%s|n'$ crEed".getBytes(StandardCharsets.UTF_8), "AES"), new IvParameterSpec(iv));
+            return new String(cipher.doFinal(cipherText), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            e.getMessage();
+            return null;
+        }
+    }
+
+    @Override
+    protected void onPostExecute(String results) {
+        Log.d(TAG, "onPostExecute: Encrypted: " + results);
+        Toast.makeText(mContext, results, Toast.LENGTH_SHORT).show();
+        String result = decrypt(results);
+        Toast.makeText(mContext, result, Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "onPostExecute: Decrypted: " + result);
         //Do something with the JSON string
         if (result != null) {
             if (result.length() > 2) {
@@ -376,5 +401,4 @@ public class getDataCsv extends AsyncTask<String, String, String> {
             pd.show();
         }
     }
-
 }
