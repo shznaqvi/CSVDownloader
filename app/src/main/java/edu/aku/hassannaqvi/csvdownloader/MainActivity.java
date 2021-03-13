@@ -16,6 +16,10 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -191,7 +195,35 @@ public class MainActivity extends AppCompatActivity {
             imei=telephonyManager.getDeviceId();
         }*/
         //Toast.makeText(this, getDeviceId(this), Toast.LENGTH_SHORT).show();
-        String plaintext = "This is a testing text for encryption and decryption.";
+        JSONArray jsonParam = null;
+        try {
+            JSONObject jsonTable = new JSONObject();
+            JSONObject jsonData = new JSONObject();
+            JSONArray uploadData = new JSONArray();
+
+            jsonData.put("username", "test1");
+            jsonData.put("password", "test1");
+            jsonData.put("dist_id", "901");
+            jsonData.put("full_name", "test1");
+            jsonData.put("auth_level", "0");
+            jsonData.put("enabled", "1");
+            uploadData.put(jsonData);
+            jsonParam = new JSONArray();
+
+
+            jsonTable.put("table", "users");
+
+            jsonParam
+                    .put(jsonTable)
+                    .put(uploadData);
+
+            Log.d("TAG", "Upload Begins: " + jsonTable.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        String plaintext = jsonParam.toString();
         secureRandom = new SecureRandom();
         byte[] key = "asSa%s|n'$ crEed".getBytes();
         secureRandom.nextBytes(key);
@@ -223,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
         //  byte[] key = "asSa%s|n'$ crEed".getBytes();
         SecretKey originalKey = new SecretKeySpec(key, 0, key.length, "AES");
         Log.d("TAG", "onCreate: CBC-En " + encrypt(plaintext));
-        Log.d("TAG", "onCreate: CBC-De " + decrypt("zJc6PCPvo4Nup2IELdEv15BFiNecSgfIFTOWmActv+mIUVaM5w1b0Ck3ctDH6vA1"));
+        Log.d("TAG", "onCreate: CBC-De " + decrypt("caFfG0AT4q7I9wjOleORJgoexKyhJ+DlEst5q+fG4oDkjvatGupxbLaGrxoNCL+EB3G0jYjh/L73JE4VfMyGXJVuSC2pFXSmHpD8xZpiPOA="));
 
 
     }
