@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
@@ -20,6 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -33,12 +36,13 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import edu.aku.hassannaqvi.csvdownloader.databinding.ActivityMainBinding;
+
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String APP_NAME = "GSED";
-    //tivityMainBinding bi;
-
+    ActivityMainBinding bi;
     Cipher cipher;
     /* final static Base64.Encoder encorder = Base64.getEncoder();
      final static Base64.Decoder decorder = Base64.getDecoder();*/
@@ -67,16 +71,12 @@ public class MainActivity extends AppCompatActivity {
         digest.reset();
 
         byte[] byteData = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-        Log.d("TAG", "computeHash: bytetostring" + byteData.toString());
-        Log.d("TAG", "computeHash: byte test" + byteData.equals("E7CF3EF4F17C3999A94F2C6F612E8A888E5B1026878E4E19398B23BD38EC221A"));
+
         StringBuffer sb = new StringBuffer();
 
         for (int i = 0; i < byteData.length; i++) {
             sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
         }
-        Log.d("TAG", "computeHash: " + sb.toString());
-        Log.d("TAG", "computeHash: byte test" + byteData.equals("e7cf3ef4f17c3999a94f2c6f612e8a888e5b1026878e4e1939"));
-
         return sb.toString();
     }
 /*    public static String getDeviceId(Context context) {
@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        // setContentView(R.layout.activity_main);
         Dexter.withContext(this)
                 .withPermissions(
                         Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -165,7 +165,8 @@ public class MainActivity extends AppCompatActivity {
             public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {/* ... */}
         }).check();
 
-        //i = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        bi = DataBindingUtil.setContentView(this, R.layout.activity_main);
+
 
         ActivityManager activityManager = (ActivityManager) getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
 
@@ -173,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         MainApp.child = new Child();
         String str = null;
         try {
-            str = computeHash("Password");
+            str = computeHash("password");
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
@@ -182,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("TAG", "onCreate: " + str);
         Log.d("TAG", "onCreate: []" + decrypt("OGVQmk4qRZxX/JW9juQ0V43jU42zRBDbvwToSmJtiIE="));
-        Log.d("TAG", "onCreate test: " + str.equals("E7CF3EF4F17C3999A94F2C6F612E8A888E5B1026878E4E19398B23BD38EC221A".toLowerCase()));
+        Log.d("TAG", "onCreate test: " + str.equals("5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8".toLowerCase()));
         // bi.setChild(MainApp.child);
 
        /* TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -258,5 +259,16 @@ public class MainActivity extends AppCompatActivity {
         Log.d("TAG", "onCreate: CBC-De " + decrypt("caFfG0AT4q7I9wjOleORJgoexKyhJ+DlEst5q+fG4oDkjvatGupxbLaGrxoNCL+EB3G0jYjh/L73JE4VfMyGXJVuSC2pFXSmHpD8xZpiPOA="));
 
 
+    }
+
+    public void checkRoot(View view) {
+        try {
+            Runtime.getRuntime().exec("su");
+            Toast.makeText(this, "Rooted Device!", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+
+        }
     }
 }
