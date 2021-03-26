@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String APP_NAME = "GSED";
     ActivityMainBinding bi;
+    private static final String KEY = BuildConfig.ApiKey;
     Cipher cipher;
     /* final static Base64.Encoder encorder = Base64.getEncoder();
      final static Base64.Decoder decorder = Base64.getDecoder();*/
@@ -77,6 +79,8 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < byteData.length; i++) {
             sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
         }
+
+        Log.d("TAG", "computeHash: " + sb);
         return sb.toString();
     }
 /*    public static String getDeviceId(Context context) {
@@ -165,8 +169,9 @@ public class MainActivity extends AppCompatActivity {
             public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {/* ... */}
         }).check();
 
-        bi = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
+        bi = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        // telephonyManager.getDeviceId();
 
         ActivityManager activityManager = (ActivityManager) getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
 
@@ -174,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
         MainApp.child = new Child();
         String str = null;
         try {
-            str = computeHash("password");
+            str = computeHash("saddique123");
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
@@ -182,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Log.d("TAG", "onCreate: " + str);
-        Log.d("TAG", "onCreate: []" + decrypt("OGVQmk4qRZxX/JW9juQ0V43jU42zRBDbvwToSmJtiIE="));
+        Log.d("TAG", "onCreate: []" + decrypt("+dS0UGu/nivFEBL1TQRsaWNzVesqKG+qrdQxFBUqX7kDSscjkbrjabLCpTyO+RSa"));
         Log.d("TAG", "onCreate test: " + str.equals("5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8".toLowerCase()));
         // bi.setChild(MainApp.child);
 
@@ -256,7 +261,7 @@ public class MainActivity extends AppCompatActivity {
         //  byte[] key = "asSa%s|n'$ crEed".getBytes();
         SecretKey originalKey = new SecretKeySpec(key, 0, key.length, "AES");
         Log.d("TAG", "onCreate: CBC-En " + encrypt(plaintext));
-        Log.d("TAG", "onCreate: CBC-De " + decrypt("caFfG0AT4q7I9wjOleORJgoexKyhJ+DlEst5q+fG4oDkjvatGupxbLaGrxoNCL+EB3G0jYjh/L73JE4VfMyGXJVuSC2pFXSmHpD8xZpiPOA="));
+        Log.d("TAG", "onCreate: CBC-De " + decrypt("R4nvLcg+AaKgH3Zk9chmlTgtihipfrWfBE6fJEKdUAwZ0SMwYksvvQDDgkS1zWJm"));
 
 
     }
@@ -270,5 +275,15 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
 
         }
+    }
+
+    private boolean checkDevice() {
+
+        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        // telephonyManager.getDeviceId();
+        String userAgent = telephonyManager.getMmsUserAgent();
+
+        return userAgent.equals("SAMSUNG-ANDROID-MMS/SM-T295");
+
     }
 }
