@@ -77,7 +77,7 @@ public class getDataCsv extends AsyncTask<String, String, String> {
         try {
             Log.d(TAG, "doInBackground: Trying...");
             if (serverURL == null) {
-                //    url = new URL("http://43.245.131.159:8080/dss/api/getdata.php");
+                //  url = new URL("https://vcoe1.aku.edu/tpvics/api/getdata.php");
                 url = new URL("http://3.249.206.243/aku/api/getdata.php");
             } else {
                 url = serverURL;
